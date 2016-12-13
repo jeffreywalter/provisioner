@@ -80,6 +80,9 @@ class ProvisionController < ApplicationController
     # deploy library
 
     # fetch the embed and display
+
+    results = { response: { library_url: embed_code }, url: '' }
+    render_text("Provisioning Complete! Go have fun!",results)
   end
 
   def companies
