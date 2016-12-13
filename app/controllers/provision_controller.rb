@@ -55,7 +55,7 @@ class ProvisionController < ApplicationController
     render_text("Created Data Element 'shopping_cart'", results)
 
     # create a rule
-    1.times do
+    10.times do
       name = FFaker::Company.bs.titleize
       results = reactor.create_rule(property.id, name)
       rule = results[:doc]
