@@ -74,7 +74,7 @@ form.custom .custom.dropdown .selector{
 div.start_provision{
   margin-top: 6px
 }
-.button{
+.provision.button{
   height: 45px;
   margin-top:25px;
 }
@@ -100,4 +100,17 @@ h3 {
   font-weight: normal;
   font-size: 1em;
   margin-bottom: 0px;
+}
+
+div.text-field {
+  margin-top: 10px;
+}
+
+.provision.button {
+  height: 39px;
+  margin-top: 29px;
+}
+
+input.sign-in.button {
+  width: 100%;
 }

@@ -124,7 +124,7 @@ class Reactor
   end
 
   def get_url(url)
-    BaseHTTP.get(url, headers)
+    BaseHTTP.get(url+"?page%5Bsize%5D\=500", headers)
   end
 
   def headers

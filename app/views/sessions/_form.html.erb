@@ -1,0 +1,18 @@
+<%= form_for :session, url: session_path do |form| %>
+  <div class="row small-8 large-2 text-field">
+    <%= form.label :email %>
+    <%= form.text_field :email, type: 'email' %>
+  </div>
+
+  <div class="row small-8 large-2 password-field">
+    <%= form.label :password %>
+    <%= form.password_field :password %>
+  </div>
+
+  <div class="row small-8 large-2">
+    <div class="submit-field">
+      <input type="submit" class="sign-in button" value="Submit">
+    </div>
+  </div>
+
+<% end %>

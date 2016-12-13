@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title><%= content_for?(:title) ? yield(:title) : "Untitled" %></title>
+    <title><%= content_for?(:title) ? yield(:title) : "Reactor Provisioning" %></title>
 
     <%= stylesheet_link_tag    "application" %>
     <%= javascript_include_tag "application", 'data-turbolinks-track' => true %>
@@ -12,16 +12,28 @@
   </head>
 
   <body>
-
     <header class='header'>
       <h1 class='headline'> Reactor API Provisioner</h1>
       <ul class="header-subnav">
       <li><a href="#" class="is-active">New Provision</a></li>
       <li><a href="#">Previous Run</a></li>
       <li><a target="_blank" href="http://developer.adobedtm.com">Reactor Docs</a></li>
+      <% if signed_in? %>
+        <li><%= link_to 'Sign out', sign_out_path, method: :delete %></li>
+      <% else %>
+        <li><%= link_to 'Sign in', sign_in_path %></li>
+      <% end %>
       </ul>
 
     </header>
+
+
+    <%# <div id="flash"> %>
+    <%#   <% flash.each do |key, value| %1> %>
+    <%#     <div class="flash <%= key %1>"><%= value %1></div> %>
+    <%#   <% end %1> %>
+    <%# </div> %>
+
     <%= yield %>
 
   </body>

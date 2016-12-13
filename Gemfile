@@ -18,6 +18,7 @@ gem 'jwt', '~> 1.5.2'
 gem 'pygments.rb'
 gem 'json-api-vanilla'
 gem 'ffaker'
+gem 'clearance'
 
 group :development, :test do
   gem 'byebug', platform: :mri
