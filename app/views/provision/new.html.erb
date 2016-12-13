@@ -1,0 +1,65 @@
+<section class="search">
+  <div class="row">
+    <div class="small-12 large-8 columns small-centered">
+      <form class="custom">
+        <div class="row">
+          <div class="large-5 small-12 columns">
+            <label>
+              Select company to provision for:
+            </label>
+            <select id='company_select' class='dropdown selector'>
+              <%= options_for_select companies %>
+            </select>
+          </div>
+          <div class="large-5 small-12 columns">
+            <label>
+              What would you like to name your property?
+            </label>
+            <input id='property_name' type='text'>
+          </div>
+          <div class="large-2 small-12 columns start_provision">
+            <div id='start_provision' class='button' src='/provision'>Provision</div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class='results'>
+  <div class='row large-12'>
+    <ul class='accordion' data-accordion data-multi-expand='true' id='provision_events'></ul>
+  </div>
+</section>
+
+<script>
+  $('#start_provision').on('click', function() {
+    var property_name = $('#property_name').val(),
+    company_id = $('#company_select').val();
+    if (property_name == undefined || property_name == '' ) {
+      alert("Please enter a property name to provision.");
+      return;
+    }
+    source = new EventSource(`/provision?company_id=${company_id}&property_name=${property_name}`);
+    source.onmessage = function(e) {
+      $('#provision_events').append($.parseHTML(e.data));
+      $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+      new Foundation.Accordion($('#provision_events'), {allowAllClosed: true});
+    }
+    source.onerror = function(event){
+        var txt;
+        switch( event.target.readyState ){
+            // if reconnecting
+            case EventSource.CONNECTING:
+                txt = 'Closing...';
+                break;
+            // if error was fatal
+            case EventSource.CLOSED:
+                txt = 'Connection failed. Will not retry.';
+                break;
+        }
+      console.log(txt);
+      source.close();
+    }
+  });
+</script>
