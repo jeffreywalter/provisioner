@@ -1,0 +1,32 @@
+<script>
+  $('#start_provision').on('click', function() {
+    var property_name = $('#property_name').val(),
+    company_id = $('#company_select').val(),
+    company_name = $('#company_select option:selected').text();
+    if (property_name == undefined || property_name == '' ) {
+      alert("Please enter a property name to provision.");
+      return;
+    }
+    source = new EventSource(`/provision/stream?company_name=${company_name}&company_id=${company_id}&property_name=${property_name}`);
+    source.onmessage = function(e) {
+      $('#provision_events').append($.parseHTML(e.data));
+      window.scrollTo(0, document.body.scrollHeight);
+      new Foundation.Accordion($('#provision_events'), {allowAllClosed: true});
+    }
+    source.onerror = function(event){
+        var txt;
+        switch( event.target.readyState ){
+            // if reconnecting
+            case EventSource.CONNECTING:
+                txt = 'Closing...';
+                break;
+            // if error was fatal
+            case EventSource.CLOSED:
+                txt = 'Connection failed. Will not retry.';
+                break;
+        }
+      console.log(txt);
+      source.close();
+    }
+  });
+</script>

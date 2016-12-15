@@ -114,3 +114,7 @@ div.text-field {
 input.sign-in.button {
   width: 100%;
 }
+
+em.tag {
+  font-weight: bold
+}

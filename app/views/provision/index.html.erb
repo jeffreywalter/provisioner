@@ -1,1 +1,32 @@
-<%= render 'templates/provision' %>
+<section class="search">
+  <div class="row">
+    <div class="small-12 large-8 columns small-centered">
+      <form class="custom">
+        <div class="row">
+          <div class="large-8 small-12 columns">
+            <label>
+              Select previous provision for review:
+            </label>
+            <select id='provision_select' class='dropdown selector'>
+              <%= options_for_select(provisions.map {|p| ["#{p.company_name} - #{p.property_name}", p.id, { 'data-value' => p.attributes.to_json } ] }) %>
+            </select>
+          </div>
+          <div class="large-4 small-12 columns start_provision">
+            <div id='start_provision' class='provision button' src='/provision'>Replay Provision</div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class='results'>
+  <div class='row large-12'>
+    <ul class='accordion' data-accordion data-multi-expand='true' id='provision_events'></ul>
+  </div>
+</section>
+
+<script>
+</script>
+
+<%= render 'sse' %>

@@ -9,9 +9,7 @@ class Reactor
     url = "#{reactor_host}/companies"
     response = get_url(url)
     doc = JSON::Api::Vanilla.parse(response.to_json)
-    doc.data.map do |data|
-      [data.name, data.id]
-    end
+    doc.data
   end
 
   def create_property(company_id, property_name)
@@ -49,10 +47,11 @@ class Reactor
 
   def create_data_element(property_id, name, dtm)
     js_id = delegate_id_for('javascript-variable', :data_elements, dtm)
+    path = FFaker::BaconIpsum.words.map{|w|w.parameterize.underscore}.join('.')
     attributes = {
-      "settings": "{\"path\":\"cart.amount\"}",
+      "settings": "{\"path\":\"#{path}\"}",
       "force_lowercase": false,
-      "name": "shopping_cart",
+      "name": name,
       "order": 0,
       "storage_duration": "visitor",
       "delegate_descriptor_id": js_id,
@@ -73,16 +72,60 @@ class Reactor
     post_payload url, attributes, 'rules'
   end
 
-  def create_click_rule_component(rule_id, dtm_ext)
+  def click_settings
+    "{\"elementSelector\":\"a#checkout\",\"bubbleFireIfParent\":true,\"bubbleFireIfChildFired\":true}"
+  end
+
+  def browser_settings
+    "{\"browsers\":[\"OmniWeb\"]}"
+  end
+
+  def set_variables_settings
+    "{\"trackerProperties\":{\"eVars\":[{\"type\":\"value\",\"name\":\"eVar2\",\"value\":\"%cost_per_click%\"},{\"type\":\"value\",\"name\":\"eVar3\",\"value\":\"%conversion%\"}],\"props\":[{\"type\":\"value\",\"value\":\"%click_through_rate%\",\"name\":\"prop2\"}]}}"
+  end
+
+  def create_rule_component(rule_id, ext, name, type)
     attributes = {
-      "extension_id": dtm_ext.id,
-      "settings": "{\"elementSelector\":\"a#checkout\",\"bubbleFireIfParent\":true,\"bubbleFireIfChildFired\":true}",
+      "extension_id": ext.id,
+      "settings": send("#{name.underscore}_settings"),
       "order": 0,
-      "delegate_descriptor_id": delegate_id_for('click', :events, dtm_ext),
+      "logic_type": 'and',
+      "delegate_descriptor_id": delegate_id_for(name, type, ext),
       "version": false
     }
     url = "#{reactor_host}/rules/#{rule_id}/rule_components"
     post_payload url, attributes, 'rule_components'
+  end
+
+  def create_library(property_id, name, environment_id, ids)
+    attributes = {
+      "name": name
+    }
+    res_data = ids.map do |res|
+      {
+        "id": res.first,
+        "type": res.last
+      }
+    end
+
+    relationships = {
+      "environment": {
+        "data": {
+          "id": environment_id,
+          "type": "environment"
+        }
+      },
+      "resources": {
+        "data": res_data
+      }
+    }
+    url = "#{reactor_host}/properties/#{property_id}/libraries"
+    post_payload url, attributes, 'libraries', relationships
+  end
+
+  def create_build(library_id)
+    url = "#{reactor_host}/libraries/#{library_id}/builds"
+    post_payload url, {}, 'builds'
   end
 
   def extension_package_for(name)
@@ -107,13 +150,14 @@ class Reactor
     end['id']
   end
 
-  def post_payload(url, attributes, type)
+  def post_payload(url, attributes, type, relationships=nil)
     payload = {
       "data": {
         "attributes": attributes,
         "type": type
       }
     }
+    payload[:data].merge!("relationships": relationships) if relationships.present?
     response = post_url(url, payload)
     doc = JSON::Api::Vanilla.parse(response.to_json)
     { url: url, doc: doc.data, response: response }

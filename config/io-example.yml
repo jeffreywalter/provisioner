@@ -1,4 +1,5 @@
 REACTOR_HOST: 'https://mc-api-activation-dtm-qe.adobe.io'
+REACTOR_UI_HOST: 'https://localhost:9002'
 IO_CLIENT_SECRET: 333f7493t0233-4fgg-sw97-058497d5cc4a
 IO_API_KEY: 33llr475f74r4853aafcwvd1f73a607c
 IO_IMS_HOST: ims-na1-stg1.adobelogin.com

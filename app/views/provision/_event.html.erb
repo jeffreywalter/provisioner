@@ -1,7 +1,11 @@
 <li class='highlight accordion' data-accordion-item>
   <a href'#' class='request-title accordion-title'><%= title %></a>
   <div class='accordion-content' data-tab-content>
-    <em><%= url %></em>
+    <% if alpha_url.present? %>
+      <em><a target='_blank' href=<%= alpha_url%>>Reactor URL</a></em>
+      </br>
+    <% end %>
+    <em class='tag'><%= url %></a></em>
     <div id='code'>
       <%= raw code %>
     </div>
