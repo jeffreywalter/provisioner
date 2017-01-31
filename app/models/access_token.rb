@@ -2,7 +2,6 @@ class AccessToken
   attr_reader :client_secret, :org, :technical_acct, :api_key, :ims_host, :private_key
 
   def initialize(options={})
-    # load_config(options['config'])
     @client_secret = ENV['IO_CLIENT_SECRET']
     @api_key = ENV['IO_API_KEY']
     @ims_host = ENV['IO_IMS_HOST']

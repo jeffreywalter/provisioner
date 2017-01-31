@@ -31,8 +31,17 @@ class Reactor
     post_payload url, { "extension_package_id": extension_package_id }, 'extensions'
   end
 
+  def create_aa_extension(property_id, extension_package_id)
+    url = "#{reactor_host}/properties/#{property_id}/extensions"
+    attributes = {
+      "extension_package_id": extension_package_id,
+      "settings": "{\"libraryCode\":{\"type\":\"managed\",\"accounts\":{\"production\":[\"dev\"],\"staging\":[\"dev\"],\"development\":[\"dev\"]},\"loadPhase\":\"pageBottom\"},\"trackerProperties\":{\"eVars\":[{\"type\":\"value\",\"name\":\"eVar4\",\"value\":\"%shopping_cart%\"}],\"trackInlineStats\":true,\"trackDownloadLinks\":true,\"trackExternalLinks\":true,\"linkDownloadFileTypes\":[\"doc\",\"docx\",\"eps\",\"jpg\",\"png\",\"svg\",\"xls\",\"ppt\",\"pptx\",\"pdf\",\"xlsx\",\"tab\",\"csv\",\"zip\",\"txt\",\"vsd\",\"vxd\",\"xml\",\"js\",\"css\",\"rar\",\"exe\",\"wma\",\"mov\",\"avi\",\"wmv\",\"mp3\",\"wav\",\"m4v\"]}}",
+      "delegate_descriptor_id": "#{extension_package_id}::extensionConfiguration::config"
+    }
+    post_payload url, attributes, 'extensions'
+  end
+
   def create_aa_config(aa_ext_id, aa)
-    ep_id = extension_packages.find
     attributes = {
       "extension_id": aa_ext_id,
       "settings": "{\"libraryCode\":{\"type\":\"managed\",\"accounts\":{\"production\":[\"dev\"],\"staging\":[\"dev\"],\"development\":[\"dev\"]},\"loadPhase\":\"pageBottom\"},\"trackerProperties\":{\"eVars\":[{\"type\":\"value\",\"name\":\"eVar4\",\"value\":\"%shopping_cart%\"}],\"trackInlineStats\":true,\"trackDownloadLinks\":true,\"trackExternalLinks\":true,\"linkDownloadFileTypes\":[\"doc\",\"docx\",\"eps\",\"jpg\",\"png\",\"svg\",\"xls\",\"ppt\",\"pptx\",\"pdf\",\"xlsx\",\"tab\",\"csv\",\"zip\",\"txt\",\"vsd\",\"vxd\",\"xml\",\"js\",\"css\",\"rar\",\"exe\",\"wma\",\"mov\",\"avi\",\"wmv\",\"mp3\",\"wav\",\"m4v\"]}}",
@@ -46,7 +55,7 @@ class Reactor
   end
 
   def create_data_element(property_id, name, dtm)
-    js_id = delegate_id_for('javascript-variable', :data_elements, dtm)
+    js_id = delegate_id_for('javascript-variable', :data_elements, dtm.extension_package)
     path = FFaker::BaconIpsum.words.map{|w|w.parameterize.underscore}.join('.')
     attributes = {
       "settings": "{\"path\":\"#{path}\"}",
@@ -90,7 +99,7 @@ class Reactor
       "settings": send("#{name.underscore}_settings"),
       "order": 0,
       "logic_type": 'and',
-      "delegate_descriptor_id": delegate_id_for(name, type, ext),
+      "delegate_descriptor_id": delegate_id_for(name, type, ext.extension_package),
       "version": false
     }
     url = "#{reactor_host}/rules/#{rule_id}/rule_components"
@@ -140,6 +149,12 @@ class Reactor
     response = get_url(url)
     doc = JSON::Api::Vanilla.parse(response.to_json)
     @extension_packages = doc.data
+  end
+
+  def get_extension(id)
+    url = "#{reactor_host}/extensions/#{id}?include=extension_package"
+    response = get_url(url)
+    JSON::Api::Vanilla.parse(response.to_json)
   end
 
   private

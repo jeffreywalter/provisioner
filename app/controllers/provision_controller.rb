@@ -57,22 +57,18 @@ class ProvisionController < ApplicationController
     # install the dtm extension
     dtm = reactor.extension_package_for('dtm')
     results = reactor.create_extension(property.id, dtm.id)
-    aurl = "#{property_url}/extensions/#{results[:doc]&.id}/extensionConfigurations"
+    aurl = "#{property_url}/extensions"
     render_text("Added the DTM extension", results, aurl)
     dtm_ext = results[:doc]
+    dtm_ext.extension_package = dtm
 
     # install the aa extension
     aa = reactor.extension_package_for('adobe-analytics')
-    results = reactor.create_extension(property.id, aa.id)
+    results = reactor.create_aa_extension(property.id, aa.id)
     aa_ext = results[:doc]
-    aurl = "#{property_url}/extensions/#{aa_ext&.id}/extensionConfigurations"
+    aa_ext.extension_package = aa
+    aurl = "#{property_url}/extensions/#{aa_ext&.id}"
     render_text("Added the Adobe Analytics Extension", results, aurl)
-
-    # create an AA config and add evars
-    results = reactor.create_aa_config(aa_ext.id, aa)
-    aa_config = results[:doc]
-    aurl = "#{property_url}/extensions/#{aa_ext&.id}/extensionConfigurations/#{aa_config&.id}"
-    render_text("Created Adobe Analytics Configuration 'My Awesome Analytics Account'", results, aurl)
 
     # create a js data element named shopping_cart
     data_elements = []
@@ -107,7 +103,7 @@ class ProvisionController < ApplicationController
     # create a library
     ids = rules.map {|r| [r.id, 'rules']} +
       data_elements.map{|de| [de.id, 'data_elements']} +
-      [[aa_config.id, 'extension_configurations']]
+      [[aa_ext.id, 'extensions'], [dtm_ext.id, 'extensions']]
     results = reactor.create_library(property.id, "Black Friday", environment.id, ids)
     library = results[:doc]
     aurl = "#{property_url}/publishing/#{library&.id}"
@@ -150,7 +146,7 @@ class ProvisionController < ApplicationController
     payload = results[:response].nil? ? '' : JSON.pretty_generate(results[:response])
     code = Pygments.highlight(payload ,:lexer => 'ruby')
     data = { title: title, alpha_url: alpha_url, code: code, url: results[:url] }
-    provision.events << Event.new(data: data)
+    # provision.events << Event.new(data: data)
     t = render_to_string(partial: 'event', formats: [:html], locals: data)
     sse.write(t)
   end
