@@ -137,6 +137,13 @@ class Reactor
     post_payload url, {}, 'builds'
   end
 
+  def extension_for(property_id, extension_package_id)
+    url = "#{reactor_host}/properties/#{property_id}/extensions"
+    response = get_url(url)
+    extensions = JSON::Api::Vanilla.parse(response.to_json)
+    extensions.data.find {|d| d.id=extension_package_id }
+  end
+
   def extension_package_for(name)
     extension_packages.find do |package|
       package.name == name

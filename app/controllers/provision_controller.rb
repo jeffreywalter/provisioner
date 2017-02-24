@@ -56,11 +56,13 @@ class ProvisionController < ApplicationController
 
     # install the dtm extension
     dtm = reactor.extension_package_for('dtm')
-    results = reactor.create_extension(property.id, dtm.id)
-    aurl = "#{property_url}/extensions"
-    render_text("Added the DTM extension", results, aurl)
-    dtm_ext = results[:doc]
+    dtm_ext = reactor.extension_for(property.id, dtm)
     dtm_ext.extension_package = dtm
+    # results = reactor.create_extension(property.id, dtm.id)
+    # aurl = "#{property_url}/extensions"
+    # render_text("Added the DTM extension", results, aurl)
+    # dtm_ext = results[:doc]
+    # dtm_ext.extension_package = dtm
 
     # install the aa extension
     aa = reactor.extension_package_for('adobe-analytics')
