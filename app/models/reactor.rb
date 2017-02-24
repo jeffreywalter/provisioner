@@ -141,7 +141,7 @@ class Reactor
     url = "#{reactor_host}/properties/#{property_id}/extensions"
     response = get_url(url)
     extensions = JSON::Api::Vanilla.parse(response.to_json)
-    extensions.data.find {|d| d.id=extension_package_id }
+    extensions.data.first
   end
 
   def extension_package_for(name)

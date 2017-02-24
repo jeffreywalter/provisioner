@@ -104,7 +104,7 @@ class ProvisionController < ApplicationController
 
     # create a library
     ids = rules.map {|r| [r.id, 'rules']} +
-      data_elements.map{|de| [de.id, 'data_elements']} +
+      data_elements.map {|de| [de.id, 'data_elements']} +
       [[aa_ext.id, 'extensions'], [dtm_ext.id, 'extensions']]
     results = reactor.create_library(property.id, "Black Friday", environment.id, ids)
     library = results[:doc]
