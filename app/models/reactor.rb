@@ -113,7 +113,10 @@ class Reactor
     res_data = ids.map do |res|
       {
         "id": res.first,
-        "type": res.last
+        "type": res.last,
+        "meta": {
+          "action": "revise"
+        }
       }
     end
 
@@ -121,7 +124,7 @@ class Reactor
       "environment": {
         "data": {
           "id": environment_id,
-          "type": "environment"
+          "type": "environments"
         }
       },
       "resources": {
@@ -186,11 +189,17 @@ class Reactor
   end
 
   def post_url(url, payload)
-    BaseHTTP.post(url, payload, headers)
+    Rails.logger.info("POST '#{url}' with payload: #{payload}")
+    response = BaseHTTP.post(url, payload, headers)
+    Rails.logger.info("Response: '#{response}'")
+    response
   end
 
   def get_url(url)
-    BaseHTTP.get(url+"?page%5Bsize%5D\=500", headers)
+    Rails.logger.info("GET '#{url}'")
+    response = BaseHTTP.get(url+"?page%5Bsize%5D\=500", headers)
+    Rails.logger.info("Response: '#{response}'")
+    response
   end
 
   def headers
