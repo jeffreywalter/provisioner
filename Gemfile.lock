@@ -70,6 +70,12 @@ GEM
       railties (>= 3.1.0)
       sass (>= 3.3.0, < 3.5)
       sprockets-es6 (>= 0.9.0)
+    foundation_rails_helper (3.0.0.rc2)
+      actionpack (>= 4.1)
+      activemodel (>= 4.1)
+      activesupport (>= 4.1)
+      railties (>= 4.1)
+      tzinfo (~> 1.2, >= 1.2.2)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
     i18n (0.7.0)
@@ -195,6 +201,7 @@ DEPENDENCIES
   coffee-rails (~> 4.2)
   ffaker
   foundation-rails
+  foundation_rails_helper (>= 3.0.0.rc2, < 4.0)
   jbuilder (~> 2.5)
   jquery-rails
   json-api-vanilla
@@ -219,4 +226,4 @@ RUBY VERSION
    ruby 2.3.1p112
 
 BUNDLED WITH
-   1.12.5
+   1.14.6

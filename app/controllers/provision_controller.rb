@@ -48,14 +48,20 @@ class ProvisionController < ApplicationController
     @property = results[:doc]
     render_text("Created property '#{property_name}'", results, "#{property_url}/overview")
 
+    # create a dev adapter
+    results = reactor.create_adapter(property.id, "Cloudy Cloud")
+    adapter = results[:doc]
+    aurl = "#{property_url}/adapters/#{adapter&.id}"
+    render_text("Created Adapter 'Cloudy Cloud'", results, aurl)
+
     # create a dev environment : save the embed code
-    results = reactor.create_environment(property.id, "My Precious")
+    results = reactor.create_environment(property.id, adapter.id, "My Precious")
     environment = results[:doc]
     aurl = "#{property_url}/environments/#{environment&.id}"
     render_text("Created Development Environment 'My Precious'", results, aurl)
 
     # install the dtm extension
-    dtm = reactor.extension_package_for('dtm')
+    dtm = reactor.extension_package_for('core')
     dtm_ext = reactor.extension_for(property.id, dtm)
     dtm_ext.extension_package = dtm
     # results = reactor.create_extension(property.id, dtm.id)
@@ -117,8 +123,9 @@ class ProvisionController < ApplicationController
     render_text("Deploying Library '#{library&.name}'", results, aurl)
 
     # fetch the embed and display
-    results = { url: environment.library_url }
-    render_text("Provisioning Complete! Go have fun!",results, environment.library_url)
+    artifact_url = results[:response]['data']['attributes']['artifact_url']
+    results = { url: artifact_url }
+    render_text("Provisioning Complete! Go have fun!",results, artifact_url )
   end
 
   def provision_for_select

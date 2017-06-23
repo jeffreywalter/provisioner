@@ -5,11 +5,12 @@ default: &default
 
 development:
   <<: *default
-  database: provisioner_development
+  url: postgresql://pguser:pgpassword@postgres/provisioner_development
+
 
 test:
   <<: *default
-  database: provisioner_test
+  url: postgresql://pguser:pgpassword@postgres/provisioner_test
 
 production:
   <<: *default

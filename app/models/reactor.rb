@@ -9,7 +9,47 @@ class Reactor
     url = "#{reactor_host}/companies"
     response = get_url(url)
     doc = JSON::Api::Vanilla.parse(response.to_json)
-    doc.data
+    companies = doc.data
+    pagination = response['meta']['pagination']
+    next_page = pagination['next_page']
+    while !next_page.nil?
+      new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=100"
+      new_response = get_url(new_url)
+      new_doc = JSON::Api::Vanilla.parse(new_response.to_json)
+      companies.concat new_doc.data
+      pagination = new_response['meta']['pagination']
+      next_page = pagination['next_page']
+    end
+    companies
+  end
+
+  def create_company(name)
+    org_id = SecureRandom.uuid.gsub('-','').upcase[0..-9] + "@AdobeOrg"
+    attributes = {
+      "org_id": org_id,
+      "name": name
+    }
+    url = "#{reactor_host}/companies"
+    post_payload url, attributes, 'companies'
+  end
+
+  def create_user(adobe_id, company_id, system_admin=false)
+    relationships = {
+      "companies": {
+        "data": [{
+          "id": company_id,
+          "type": "companies"
+        }]
+      }
+    }
+    url = "#{reactor_host}/users"
+
+    attributes = {
+      "adobe_id": adobe_id,
+      "system_admin": system_admin
+    }
+
+    post_payload url, attributes, 'users', relationships
   end
 
   def create_property(company_id, property_name)
@@ -17,13 +57,34 @@ class Reactor
     post_payload url, { "name": property_name }, 'properties'
   end
 
-  def create_environment(property_id, environment_name)
+  def create_adapter(property_id, adapter_name)
+    attributes = {
+      "name": adapter_name,
+      "type_of": "akamai"
+    }
+    url = "#{reactor_host}/properties/#{property_id}/adapters"
+    post_payload url, attributes, 'adapters'
+  end
+
+  def create_environment(property_id, adapter_id, environment_name)
     attributes = {
       "name": environment_name,
-      "adapter": "akamai"
+      "stage": "development",
+      "relative_path": false,
+      "archive": false,
+      "path": ""
+    }
+
+    relationships = {
+      "adapter": {
+        "data": {
+          "id": adapter_id,
+          "type": "adapters"
+        }
+      }
     }
     url = "#{reactor_host}/properties/#{property_id}/environments"
-    post_payload url, attributes, 'environments'
+    post_payload url, attributes, 'environments', relationships
   end
 
   def create_extension(property_id, extension_package_id)

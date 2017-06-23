@@ -13,6 +13,7 @@ gem 'turbolinks', '~> 5'
 gem 'jbuilder', '~> 2.5'
 
 gem 'foundation-rails'
+gem 'foundation_rails_helper', '>= 3.0.0.rc2', '< 4.0'
 
 gem 'jwt', '~> 1.5.2'
 gem 'pygments.rb'
