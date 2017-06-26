@@ -157,6 +157,7 @@ class Reactor
   def create_rule_component(rule_id, ext, name, type)
     attributes = {
       "extension_id": ext.id,
+      "name": FFaker::Company.bs.titleize,
       "settings": send("#{name.underscore}_settings"),
       "order": 0,
       "logic_type": 'and',
