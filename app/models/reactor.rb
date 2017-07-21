@@ -54,7 +54,7 @@ class Reactor
 
   def create_property(company_id, property_name)
     url = "#{reactor_host}/companies/#{company_id}/properties"
-    post_payload url, { "name": property_name }, 'properties'
+    post_payload url, { "name": property_name, "domains": ["renchair.com"] }, 'properties'
   end
 
   def create_adapter(property_id, adapter_name)
