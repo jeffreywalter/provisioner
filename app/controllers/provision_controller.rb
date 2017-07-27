@@ -90,7 +90,7 @@ class ProvisionController < ApplicationController
 
     # create a rule
     rules = []
-    10.times do
+    5.times do
       name = FFaker::Company.bs.titleize
       results = reactor.create_rule(property.id, name)
       rule = results[:doc]
@@ -245,6 +245,6 @@ class ProvisionController < ApplicationController
   end
 
   def de_names
-    %w(click_through_rate cost_per_acquisition cost_per_click cost_per_thousand conversion impressions keyword organic_traffic paid_traffic search_engine_optimization search_engine_results_page meta_description landing_page shopping_cart)
+    %w(click_through_rate cost_per_acquisition cost_per_click cost_per_thousand conversion shopping_cart)
   end
 end

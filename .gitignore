@@ -21,6 +21,4 @@
 .byebug_history
 
 # Ignore config files
-config/io-qa.yml
-config/io-dev.yml
-config/io-alpha.yml
+config/io-*.yml
