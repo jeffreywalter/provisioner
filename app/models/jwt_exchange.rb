@@ -1,5 +1,5 @@
 class JWTExchange
-  attr_reader :client_secret, :api_key, :org, :technical_acct, :ims_host, :expiry_time
+  attr_reader :client_secret, :api_key, :scope, :org, :technical_acct, :ims_host, :expiry_time
 
   def initialize(opts)
     @client_secret = opts[:client_secret]
@@ -8,6 +8,7 @@ class JWTExchange
     @expiry_time = opts[:expiry_time]
     @org = opts[:org]
     @technical_acct = opts[:user]
+    @scope = opts[:scope] || 'ent_reactor_admin_sdk'
 
     @private_key = opts[:private_key]
   end
@@ -46,7 +47,7 @@ class JWTExchange
       jti: '1479490921',
       iat: expiry_time - 10000,
       aud: "https://#{ims_host}/c/#{api_key}",
-      "https://#{ims_host}/s/ent_activation_sdk" => true
+      "https://#{ims_host}/s/#{scope}" => true
     }
   end
 end
