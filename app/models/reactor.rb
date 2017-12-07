@@ -251,7 +251,7 @@ class Reactor
 
   def post_url(url, payload)
     Rails.logger.info("POST '#{url}' with payload: #{payload}")
-    response = BaseHTTP.post(url, payload, headers)
+    response = ReactorHTTP.post(url, payload, headers)
     Rails.logger.info("Response: '#{response}'")
     response
   end

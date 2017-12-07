@@ -148,7 +148,7 @@ class ProvisionController < ApplicationController
   end
 
   def access_token
-    @access_token ||= AccessToken.new.generate
+    @access_token ||= AdobeIo::AccessToken.new.generate
   end
 
   def render_text(title, results, alpha_url=nil)

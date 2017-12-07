@@ -21,6 +21,8 @@ gem 'json-api-vanilla'
 gem 'ffaker'
 gem 'clearance'
 
+gem 'ruby-adobe-io', '0.3.0', source: 'https://vWCx3igjx815zPrxX281@gem.fury.io/jwalter748/'
+
 group :development, :test do
   gem 'byebug', platform: :mri
   gem 'pry'
