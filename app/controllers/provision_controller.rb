@@ -123,7 +123,7 @@ class ProvisionController < ApplicationController
     render_text("Deploying Library '#{library&.name}'", results, aurl)
 
     # fetch the embed and display
-    artifact_url = results[:response]['data']['attributes']['artifact_url']
+    artifact_url = results[:response]['data']['meta']['artifact_url'].gsub('.min','')
     results = { url: artifact_url }
     render_text("Provisioning Complete! Go have fun!",results, artifact_url )
   end
