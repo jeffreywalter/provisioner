@@ -1,6 +1,4 @@
 class ProvisionController < ApplicationController
-  include ActionController::Live
-
   def new
     render :new, locals: { companies: companies_for_select }
   end
@@ -27,24 +25,8 @@ class ProvisionController < ApplicationController
     @provision ||= Provision.create(company_name: company_name, company_id: company_id, property_name: property_name)
   end
 
-  def sse
-    @sse ||= SSE.new(response.stream)
-  end
-
-  def alpha_host
-    ENV['REACTOR_UI_HOST'] || 'https://lens-alpha.mcdp.adobemc.com'
-  end
-
-  def company_url
-    "#{alpha_host}/company/#{company_id}"
-  end
-
-  def property_url
-    "#{company_url}/property/#{property.id}" if property.present?
-  end
-
   def provision_property
-    results = reactor.create_property(company_id, property_name)
+    results = reactor.create_property(company_id, property_name: property_name)
     @property = results[:doc]
     render_text("Created property '#{property_name}'", results, "#{property_url}/overview")
 
@@ -137,29 +119,6 @@ class ProvisionController < ApplicationController
     end
   end
 
-  def companies_for_select
-    reactor.companies.map do |data|
-      [data.name, data.id]
-    end
-  end
-
-  def reactor
-    @reactor ||= Reactor.new(access_token)
-  end
-
-  def access_token
-    @access_token ||= AdobeIo::AccessToken.new.generate
-  end
-
-  def render_text(title, results, alpha_url=nil)
-    payload = results[:response].nil? ? '' : JSON.pretty_generate(results[:response])
-    code = Pygments.highlight(payload ,:lexer => 'ruby')
-    data = { title: title, alpha_url: alpha_url, code: code, url: results[:url] }
-    # provision.events << Event.new(data: data)
-    t = render_to_string(partial: 'event', formats: [:html], locals: data)
-    sse.write(t)
-  end
-
   def company_id
     @company_id ||= params[:company_id]
   end
@@ -170,10 +129,6 @@ class ProvisionController < ApplicationController
 
   def property_name
     @property_name ||= params[:property_name]
-  end
-
-  def property
-    @property
   end
 
   def fake_provision

@@ -14,4 +14,7 @@ Rails.application.routes.draw do
   root to: 'provision#new'
   resources :provision, only: [:new, :index]
   get '/provision/stream', to: "provision#stream"
+  resources :duplicate, only: [:new]
+  get '/duplicate/stream', to: "duplicate#stream"
+  get '/duplicate/properties', to: "duplicate#properties"
 end

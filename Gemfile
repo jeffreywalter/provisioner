@@ -26,6 +26,7 @@ gem 'ruby-adobe-io', '0.3.0', source: 'https://vWCx3igjx815zPrxX281@gem.fury.io/
 group :development, :test do
   gem 'byebug', platform: :mri
   gem 'pry'
+  gem 'pry-byebug'
 end
 
 group :development do

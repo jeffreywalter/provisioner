@@ -114,6 +114,9 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    pry-byebug (3.4.3)
+      byebug (>= 9.0, < 9.1)
+      pry (~> 0.10)
     pry-rails (0.3.4)
       pry (>= 0.9.10)
     puma (3.6.2)
@@ -215,6 +218,7 @@ DEPENDENCIES
   listen (~> 3.0.5)
   pg
   pry
+  pry-byebug
   pry-rails
   puma (~> 3.0)
   pygments.rb

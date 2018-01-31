@@ -23,6 +23,52 @@ class Reactor
     companies
   end
 
+  def properties(company_id)
+    url = "#{reactor_host}/companies/#{company_id}/properties"
+    response = get_url(url)
+    doc = JSON::Api::Vanilla.parse(response.to_json)
+    properties = doc.data
+    pagination = response['meta']['pagination']
+    next_page = pagination['next_page']
+    while !next_page.nil?
+      new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=100"
+      new_response = get_url(new_url)
+      new_doc = JSON::Api::Vanilla.parse(new_response.to_json)
+      properties.concat new_doc.data
+      pagination = new_response['meta']['pagination']
+      next_page = pagination['next_page']
+    end
+    properties
+  end
+
+  def property(property_id)
+    url = "#{reactor_host}/properties/#{property_id}"
+    get_url(url)
+  end
+
+  def extensions(property_id)
+    url = "#{reactor_host}/properties/#{property_id}/extensions"
+    get_url(url)
+  end
+
+  def scrub_payload(payload, remove_attrs=[])
+    if payload.instance_of? Array
+      payload.each do |h|
+        scrub_attributes(payload, remove_attrs)
+      end
+    else
+      scrub_attributes(payload, remove_attrs)
+    end
+  end
+
+  def scrub_attributes(h, remove_attrs=[])
+    delete_attrs = %w(created_at updated_at dirty disply_name published published_at revision review_status)
+    ( delete_attrs + remove_attrs).each do |f|
+      h.delete(f)
+    end
+    h
+  end
+
   def create_company(name)
     org_id = SecureRandom.uuid.gsub('-','').upcase[0..-9] + "@AdobeOrg"
     attributes = {
@@ -52,9 +98,10 @@ class Reactor
     post_payload url, attributes, 'users', relationships
   end
 
-  def create_property(company_id, property_name)
+  def create_property(company_id, property_name: nil, payload: nil)
     url = "#{reactor_host}/companies/#{company_id}/properties"
-    post_payload url, { "name": property_name, "domains": ["renchair.com"] }, 'properties'
+    payload = payload || { "name": property_name, "domains": ["renchair.com"] }
+    post_payload url, scrub_payload(payload, %w(enabled)), 'properties'
   end
 
   def create_adapter(property_id, adapter_name)
@@ -70,6 +117,7 @@ class Reactor
     attributes = {
       "name": environment_name,
       "stage": "development",
+      "relative_path": false,
       "archive": false,
       "path": ""
     }
@@ -86,9 +134,9 @@ class Reactor
     post_payload url, attributes, 'environments', relationships
   end
 
-  def create_extension(property_id, extension_package_id)
+  def create_extension(property_id, payload)
     url = "#{reactor_host}/properties/#{property_id}/extensions"
-    post_payload url, { "extension_package_id": extension_package_id }, 'extensions'
+    post_payload url, scrub_payload(payload), 'extensions'
   end
 
   def create_aa_extension(property_id, extension_package_id)
@@ -114,23 +162,37 @@ class Reactor
     post_payload url, attributes, 'extension_configurations'
   end
 
-  def create_data_element(property_id, name, dtm)
-    js_id = delegate_id_for('javascript-variable', :data_elements, dtm.extension_package)
-    path = FFaker::BaconIpsum.words.map{|w|w.parameterize.underscore}.join('.')
-    attributes = {
-      "settings": "{\"path\":\"#{path}\"}",
-      "force_lowercase": false,
-      "name": name,
-      "order": 0,
-      "storage_duration": "visitor",
-      "delegate_descriptor_id": js_id,
-      "default_value": "0",
-      "clean_text": false,
-      "extension_id": dtm.id,
-      "version": false
-    }
+  # def create_property(company_id, property_name: nil, payload: nil)
+  #   url = "#{reactor_host}/companies/#{company_id}/properties"
+  #   payload = payload || { "name": property_name, "domains": ["renchair.com"] }
+  #   post_payload url, scrub_payload(payload, %w(enabled)), 'properties'
+  # end
+
+  def data_elements(property_id)
     url = "#{reactor_host}/properties/#{property_id}/data_elements"
-    post_payload url, attributes, 'data_elements'
+    get_url(url)
+  end
+
+  def create_data_element(property_id, name=nil, dtm=nil, payload=nil)
+    attrs = payload
+    if attrs.nil?
+      js_id = delegate_id_for('javascript-variable', :data_elements, dtm.extension_package)
+      path = FFaker::BaconIpsum.words.map{|w|w.parameterize.underscore}.join('.')
+      attrs = {
+        "settings": "{\"path\":\"#{path}\"}",
+        "force_lowercase": false,
+        "name": name,
+        "order": 0,
+        "storage_duration": "visitor",
+        "delegate_descriptor_id": js_id,
+        "default_value": "0",
+        "clean_text": false,
+        "extension_id": dtm.id,
+        "version": false
+      }
+    end
+    url = "#{reactor_host}/properties/#{property_id}/data_elements"
+    post_payload url, scrub_payload(attrs), 'data_elements'
   end
 
   def create_rule(property_id, name)
@@ -146,7 +208,7 @@ class Reactor
   end
 
   def browser_settings
-    "{\"browsers\":[\"Chrome\"]}"
+    "{\"browsers\":[\"OmniWeb\"]}"
   end
 
   def set_variables_settings
