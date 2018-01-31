@@ -195,6 +195,16 @@ class Reactor
     post_payload url, scrub_payload(attrs), 'data_elements'
   end
 
+  def data_elements(property_id)
+    url = "#{reactor_host}/properties/#{property_id}/data_elements"
+    get_url(url)
+  end
+
+  def rules(property_id)
+    url = "#{reactor_host}/properties/#{property_id}/rules"
+    get_url(url)
+  end
+
   def create_rule(property_id, name)
     attributes = {
       "name": name
@@ -215,16 +225,25 @@ class Reactor
     "{\"trackerProperties\":{\"eVars\":[{\"type\":\"value\",\"name\":\"eVar2\",\"value\":\"%cost_per_click%\"},{\"type\":\"value\",\"name\":\"eVar3\",\"value\":\"%conversion%\"}],\"props\":[{\"type\":\"value\",\"value\":\"%click_through_rate%\",\"name\":\"prop2\"}]}}"
   end
 
-  def create_rule_component(rule_id, ext, name, type)
-    attributes = {
-      "extension_id": ext.id,
-      "name": FFaker::Company.bs.titleize,
-      "settings": send("#{name.underscore}_settings"),
-      "order": 0,
-      "logic_type": 'and',
-      "delegate_descriptor_id": delegate_id_for(name, type, ext.extension_package),
-      "version": false
-    }
+  def rule_components(rule_id)
+    url = "#{reactor_host}/rules/#{rule_id}/rule_components"
+    get_url(url)
+  end
+
+  def create_rule_component(rule_id, ext=nil, name=nil, type=nil, payload=nil)
+    attributes = payload
+    if attributes.nil?
+      attributes = {
+        "extension_id": ext.id,
+        "name": FFaker::Company.bs.titleize,
+        "settings": send("#{name.underscore}_settings"),
+        "order": 0,
+        "logic_type": 'and',
+        "delegate_descriptor_id": delegate_id_for(name, type, ext.extension_package),
+        "version": false
+      }
+    end
+
     url = "#{reactor_host}/rules/#{rule_id}/rule_components"
     post_payload url, attributes, 'rule_components'
   end

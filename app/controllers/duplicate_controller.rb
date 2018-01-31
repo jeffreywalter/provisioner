@@ -68,20 +68,32 @@ class DuplicateController < ApplicationController
       end
       de_response = reactor.create_data_element(@property.id, nil, nil, payload)
       de = de_response[:doc]
-      aurl = "#{property_url}/dataElements/#{de&.id}"
-      render_text("Created Data Element '#{de&.name}'", results, aurl)
+      aurl = "#{property_url}/data_elements/#{de&.id}"
+      render_text("Created Data Element '#{de&.name}'", de_response, aurl)
     end
 
-    # for each rule in source
-    #   get rule components for rule
-    #   create rule
-    #   create rule_components if for good extension
-    #   render "cannot create component" for bad extensions
-    #
-    # create a new adapter
-    # create a new environment
-    # create a library
-    # add all resources to that library
+    rules_results = reactor.rules(source_property_id)
+    rules_results['data'].each do |rule_result|
+      name = rule_result['attributes']['name']
+      rule_response = reactor.create_rule(property.id, name)
+
+      rule = rule_response[:doc]
+      aurl = "#{property_url}/rules/#{rule&.id}"
+      render_text("Created Rule '#{rule&.name}'", rule_response, aurl)
+
+      rc_results = reactor.rule_components(rule_result['id'])
+      rc_results['data'].each do |rc_result|
+        payload = rc_result['attributes'].tap do |h|
+          h['extension_id'] = rc_result['links']['extension'][/(?<=extensions\/).*/]
+        end
+        rc_response = reactor.create_rule_component(rule_result['id'], nil, nil, nil, payload)
+        rc = rc_response[:doc]
+        aurl = "#{property_url}/rule_components/#{rc&.id}"
+        render_text("Created Rule Component '#{rc&.name}'", rule_response, aurl)
+      end
+    end
+    results = { url: property_url }
+    render_text("Duplication Complete! Go have fun!", results, "#{property_url}/overview")
   end
 
   def source_property_id
