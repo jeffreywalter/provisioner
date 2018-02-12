@@ -117,7 +117,6 @@ class Reactor
     attributes = {
       "name": environment_name,
       "stage": "development",
-      "relative_path": false,
       "archive": false,
       "path": ""
     }

@@ -84,9 +84,9 @@ class DuplicateController < ApplicationController
       rc_results = reactor.rule_components(rule_result['id'])
       rc_results['data'].each do |rc_result|
         payload = rc_result['attributes'].tap do |h|
-          h['extension_id'] = rc_result['links']['extension'][/(?<=extensions\/).*/]
+          h['extension_id'] = extensions[rc_result['links']['extension'][/(?<=extensions\/).*/]]
         end
-        rc_response = reactor.create_rule_component(rule_result['id'], nil, nil, nil, payload)
+        rc_response = reactor.create_rule_component(rule.id, nil, nil, nil, payload)
         rc = rc_response[:doc]
         aurl = "#{property_url}/rule_components/#{rc&.id}"
         render_text("Created Rule Component '#{rc&.name}'", rule_response, aurl)
