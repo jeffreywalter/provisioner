@@ -89,7 +89,7 @@ class DuplicateController < ApplicationController
         rc_response = reactor.create_rule_component(rule.id, nil, nil, nil, payload)
         rc = rc_response[:doc]
         aurl = "#{property_url}/rule_components/#{rc&.id}"
-        render_text("Created Rule Component '#{rc&.name}'", rule_response, aurl)
+        render_text("Created Rule Component '#{rc&.name}'", rc_response, aurl)
       end
     end
     results = { url: property_url }

@@ -2,7 +2,7 @@
   $('#get_properties').on('click', function() {
     var company_id = $('#company_select').val(),
     company_name = $('#company_select option:selected').text();
-    source = new EventSource(`/duplicate/stream?company_id=${company_id}`);
+    source = new EventSource("/duplicate/stream?company_id="+company_id);
     source.onmessage = function(e) {
       $('#provision_events').append($.parseHTML(e.data));
       window.scrollTo(0, document.body.scrollHeight);

@@ -5,7 +5,7 @@ $('#company_select').click(function() {
 $('#company_select').change(function() {
   var company_id = this.value;
   $('.loader').toggle();
-  source = new EventSource(`/duplicate/properties?company_id=${company_id}`);
+  source = new EventSource("/duplicate/properties?company_id="+company_id);
   source.onmessage = function(e) {
     var data = JSON.parse(e.data),
     property_select =  $('#source_property_select')[0];
@@ -46,7 +46,7 @@ $('#start_duplicate').on('click', function() {
     alert("Please enter a target property name.");
     return;
   };
-  source = new EventSource(`/duplicate/stream?source_property_id=${property_id}&target_property_name=${property_name}`);
+  source = new EventSource("/duplicate/stream?source_property_id="+property_id+"&target_property_name="+property_name);
   source.onmessage = function(e) {
     $('#duplicate_events').append($.parseHTML(e.data));
     window.scrollTo(0, document.body.scrollHeight);
