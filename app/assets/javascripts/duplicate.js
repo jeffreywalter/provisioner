@@ -1,3 +1,7 @@
+$('#company_select').click(function() {
+  $('.duplicate').hide();
+});
+
 $('#company_select').change(function() {
   var company_id = this.value;
   $('.loader').toggle();
