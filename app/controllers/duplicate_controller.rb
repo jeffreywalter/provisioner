@@ -1,3 +1,4 @@
+Ext = Struct.new(:id)
 class DuplicateController < ApplicationController
   def new
     render :new, locals: { companies: companies_for_select}
@@ -41,6 +42,7 @@ class DuplicateController < ApplicationController
     return if results[:response]['errors'].present?
     results = reactor.extensions(source_property_id)
     core_ext_id = reactor.extensions(property.id)['data'].first['id']
+
     extensions = results['data'].each_with_object({}) do |ext, memo|
       if ext['attributes']['name'] == 'core'
         memo[ext['id']] = core_ext_id
@@ -63,10 +65,10 @@ class DuplicateController < ApplicationController
     # get data elements, and post
     data_element_results = reactor.data_elements(source_property_id)
     data_element_results['data'].each do |de_result|
-      payload = de_result['attributes'].tap do |h|
-        h['extension_id'] = extensions[de_result['links']['extension'][/(?<=extensions\/).*/]]
-      end
-      de_response = reactor.create_data_element(@property.id, nil, nil, payload)
+      payload = de_result['attributes']
+      extension_id = extensions[de_result['relationships']['extension']['data']['id']]
+      ext = Ext.new(extension_id)
+      de_response = reactor.create_data_element(@property.id, nil, ext, payload)
       de = de_response[:doc]
       aurl = "#{property_url}/data_elements/#{de&.id}"
       render_text("Created Data Element '#{de&.name}'", de_response, aurl)
@@ -83,10 +85,10 @@ class DuplicateController < ApplicationController
 
       rc_results = reactor.rule_components(rule_result['id'])
       rc_results['data'].each do |rc_result|
-        payload = rc_result['attributes'].tap do |h|
-          h['extension_id'] = extensions[rc_result['links']['extension'][/(?<=extensions\/).*/]]
-        end
-        rc_response = reactor.create_rule_component(rule.id, nil, nil, nil, payload)
+        payload = rc_result['attributes']
+        extension_id = extensions[rc_result['relationships']['extension']['data']['id']]
+        ext = Ext.new(extension_id)
+        rc_response = reactor.create_rule_component(rule.id, ext, nil, nil, payload)
         rc = rc_response[:doc]
         aurl = "#{property_url}/rule_components/#{rc&.id}"
         render_text("Created Rule Component '#{rc&.name}'", rc_response, aurl)

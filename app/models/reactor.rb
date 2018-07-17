@@ -100,7 +100,7 @@ class Reactor
 
   def create_property(company_id, property_name: nil, payload: nil)
     url = "#{reactor_host}/companies/#{company_id}/properties"
-    payload = payload || { "name": property_name, "domains": ["renchair.com"] }
+    payload = payload || { "name": property_name, "platform": "web", "domains": ["renchair.com"] }
     post_payload url, scrub_payload(payload, %w(enabled)), 'properties'
   end
 
@@ -141,11 +141,18 @@ class Reactor
   def create_aa_extension(property_id, extension_package_id)
     url = "#{reactor_host}/properties/#{property_id}/extensions"
     attributes = {
-      "extension_package_id": extension_package_id,
       "settings": "{\"libraryCode\":{\"type\":\"managed\",\"accounts\":{\"production\":[\"dev\"],\"staging\":[\"dev\"],\"development\":[\"dev\"]}},\"trackerProperties\":{\"eVars\":[{\"type\":\"value\",\"name\":\"eVar4\",\"value\":\"%shopping_cart%\"}],\"trackInlineStats\":true,\"trackDownloadLinks\":true,\"trackExternalLinks\":true,\"linkDownloadFileTypes\":[\"doc\",\"docx\",\"eps\",\"jpg\",\"png\",\"svg\",\"xls\",\"ppt\",\"pptx\",\"pdf\",\"xlsx\",\"tab\",\"csv\",\"zip\",\"txt\",\"vsd\",\"vxd\",\"xml\",\"js\",\"css\",\"rar\",\"exe\",\"wma\",\"mov\",\"avi\",\"wmv\",\"mp3\",\"wav\",\"m4v\"]}}",
-      "delegate_descriptor_id": "#{extension_package_id}::extensionConfiguration::config"
+      "delegate_descriptor_id": "adobe-analytics::extensionConfiguration::config"
     }
-    post_payload url, attributes, 'extensions'
+    relationship = {
+      "extension_package": {
+        "data": {
+          "id": "#{extension_package_id}",
+          "type": "extension_packages"
+        }
+      }
+    }
+    post_payload url, attributes, 'extensions', relationship
   end
 
   def create_aa_config(aa_ext_id, aa)
@@ -186,12 +193,19 @@ class Reactor
         "delegate_descriptor_id": js_id,
         "default_value": "0",
         "clean_text": false,
-        "extension_id": dtm.id,
         "version": false
       }
     end
+    relationship = {
+      "extension": {
+        "data": {
+          "id": "#{dtm.id}",
+          "type": "extensions"
+        }
+      }
+    }
     url = "#{reactor_host}/properties/#{property_id}/data_elements"
-    post_payload url, scrub_payload(attrs), 'data_elements'
+    post_payload url, scrub_payload(attrs), 'data_elements', relationship
   end
 
   def data_elements(property_id)
@@ -217,7 +231,7 @@ class Reactor
   end
 
   def browser_settings
-    "{\"browsers\":[\"OmniWeb\"]}"
+    "{\"browsers\":[\"Chrome\"]}"
   end
 
   def set_variables_settings
@@ -242,9 +256,16 @@ class Reactor
         "version": false
       }
     end
-
+    relationship = {
+      "extension": {
+        "data": {
+          "id": "#{ext.id}",
+          "type": "extensions"
+        }
+      }
+    }
     url = "#{reactor_host}/rules/#{rule_id}/rule_components"
-    post_payload url, attributes, 'rule_components'
+    post_payload url, attributes, 'rule_components', relationship
   end
 
   def create_library(property_id, name, environment_id, ids)
@@ -290,7 +311,7 @@ class Reactor
 
   def extension_package_for(name)
     extension_packages.find do |package|
-      package.name == name
+      package.name == name && package.platform == 'web'
     end
   end
 
