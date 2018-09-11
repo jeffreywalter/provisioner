@@ -8,12 +8,13 @@ $('#company_select').change(function() {
   source = new EventSource("/duplicate/properties?company_id="+company_id);
   source.onmessage = function(e) {
     var data = JSON.parse(e.data),
-    property_select =  $('#source_property_select')[0];
+    property_select = $('#source_property_select');
+    property_select.children('option:not(:first)').remove()
     data.forEach(function(element) {
       option = document.createElement('option');
       option.text = element[0];
       option.value = element[1];
-      property_select.add(option)
+      property_select[0].add(option)
     });
     $('.duplicate').toggle();
     $('.loader').toggle();

@@ -50,12 +50,11 @@ class DuplicateController < ApplicationController
       end
 
       payload = {
-        "extension_package_id": ext['relationships']['extension_package']['links']['related'][/(?<=extension_packages\/).*/],
         "delegate_descriptor_id": ext['attributes']['delegate_descriptor_id'] || '',
         "settings": ext['attributes']['settings'] || ''
       }
 
-      result = reactor.create_extension(property.id, payload)
+      result = reactor.create_extension(property.id, payload, ext['relationships'])
       new_ext = result[:doc]
       eurl = "#{property_url}/extensions/#{new_ext&.id}"
       render_text("Added #{new_ext&.display_name} Extension", result, eurl)

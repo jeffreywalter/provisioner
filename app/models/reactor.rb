@@ -133,9 +133,9 @@ class Reactor
     post_payload url, attributes, 'environments', relationships
   end
 
-  def create_extension(property_id, payload)
+  def create_extension(property_id, payload, relationship)
     url = "#{reactor_host}/properties/#{property_id}/extensions"
-    post_payload url, scrub_payload(payload), 'extensions'
+    post_payload url, scrub_payload(payload), 'extensions', relationship
   end
 
   def create_aa_extension(property_id, extension_package_id)
