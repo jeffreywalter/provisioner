@@ -93,6 +93,19 @@ class DuplicateController < ApplicationController
         render_text("Created Rule Component '#{rc&.name}'", rc_response, aurl)
       end
     end
+
+    # create a dev adapter
+    results = reactor.create_adapter(property.id, "Managed by Adobe")
+    adapter = results[:doc]
+    aurl = "#{property_url}/adapters/#{adapter&.id}"
+    render_text("Created Adapter 'Managed by Adobe'", results, aurl)
+
+    # create a dev environment : save the embed code
+    results = reactor.create_environment(property.id, adapter.id, "Development")
+    environment = results[:doc]
+    aurl = "#{property_url}/environments/#{environment&.id}"
+    render_text("Created Development Environment 'Development'", results, aurl)
+
     results = { url: property_url }
     render_text("Duplication Complete! Go have fun!", results, "#{property_url}/overview")
   end
