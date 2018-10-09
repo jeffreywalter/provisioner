@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   before_action :require_login
 
   def reactor
+    # puts access_token
     @reactor ||= Reactor.new(access_token)
   end
 
@@ -24,11 +25,14 @@ class ApplicationController < ActionController::Base
 
   def render_text(title, results, alpha_url=nil)
     payload = results[:response].nil? ? '' : JSON.pretty_generate(results[:response])
-    code = Pygments.highlight(payload ,:lexer => 'ruby')
-    data = { title: title, alpha_url: alpha_url, code: code, url: results[:url] }
+    Rails.logger.info("#{title} Payload: #{payload}")
+    # code = Pygments.highlight(payload ,:lexer => 'ruby')
+    # data = { title: title, alpha_url: alpha_url, code: code, url: results[:url] }
     # provision.events << Event.new(data: data)
-    t = render_to_string(partial: 'shared/event', formats: [:html], locals: data)
-    sse.write(t)
+    # t = render_to_string(partial: 'shared/event', formats: [:html], locals: data)
+    # sse.write(t)
+  rescue StandardError => e
+    puts e.backtrace
   end
 
   def alpha_host

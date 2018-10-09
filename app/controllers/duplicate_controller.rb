@@ -34,6 +34,8 @@ class DuplicateController < ApplicationController
       h['name'] = target_property_name
     end
     @company_id = source_property['data']['links']['company'][/(?<=companies\/).*/]
+    # @company_id = 'CO20beeeda3ecf49f49838a970681dbad2' # waltermotorsports
+    @company_id = 'COfb1c920eeb554da9be4d063e12c2e950'
 
     results = reactor.create_property(company_id, payload: payload)
     @property = results[:doc]
@@ -41,7 +43,10 @@ class DuplicateController < ApplicationController
 
     return if results[:response]['errors'].present?
     results = reactor.extensions(source_property_id)
-    core_ext_id = reactor.extensions(property.id)['data'].first['id']
+    core_ext_id = reactor.extensions(property.id, true)['data'].first['id']
+
+    # source_extension_packages = reactor.extension_packages.map {|ep| [ep.name, ep.id] }
+    target_extension_packages = reactor.extension_packages(true).select {|ep| ep.platform == 'web' }.map {|ep| [ep.name, ep.id] }
 
     extensions = results['data'].each_with_object({}) do |ext, memo|
       if ext['attributes']['name'] == 'core'
@@ -53,6 +58,23 @@ class DuplicateController < ApplicationController
         "delegate_descriptor_id": ext['attributes']['delegate_descriptor_id'] || '',
         "settings": ext['attributes']['settings'] || ''
       }
+      exp_id = ext['relationships']['extension_package']['data']['id']
+      puts "Trying to install #{exp_id} for extension #{ext['id']}"
+      source_ep = reactor.get_extension_package(exp_id)
+      target_exp_id = target_extension_packages.find { |exp| exp.first == source_ep.data.name }.last
+
+      ext['relationships']['extension_package']['data']['id'] = target_exp_id
+      if target_exp_id == 'EP5f69cb6929074c798693649fbaec75bf'
+        settings_h = JSON.parse(payload[:settings])
+        settings_h['targetSettings']['supplementalDataIdParamTimeout'] = 30
+        settings_h['targetSettings']['authoringScriptUrl'] = "//cdn.tt.omtrdc.net/cdn/target-vec.js"
+        settings_h['targetSettings']['urlSizeLimit'] = 2048
+        payload[:settings] = settings_h.to_json
+      end
+
+      if target_exp_id == 'EP92eafb51a6704e85b5f8d4a923635cdc'
+        payload[:delegate_descriptor_id] = 'trustarc-notice::extensionConfiguration::config'
+      end
 
       result = reactor.create_extension(property.id, payload, ext['relationships'])
       new_ext = result[:doc]
@@ -76,6 +98,7 @@ class DuplicateController < ApplicationController
     rules_results = reactor.rules(source_property_id)
     rules_results['data'].each do |rule_result|
       name = rule_result['attributes']['name']
+      # next if name != "Analytics : Click Event : Email Subscription"
       rule_response = reactor.create_rule(property.id, name)
 
       rule = rule_response[:doc]

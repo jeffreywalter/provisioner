@@ -7,7 +7,7 @@ class ReactorHTTP
     req = Net::HTTP::Post.new(uri.request_uri)
     set_headers(req, headers)
     req.body = body.to_json
-    puts("Post: #{uri}\n   Headers: #{headers}\n   Body: #{body}")
+    # puts("Post: #{uri}\n   Headers: #{headers}\n   Body: #{body}")
     http_request(uri, req)
   end
 

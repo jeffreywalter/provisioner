@@ -1,25 +1,28 @@
 class Reactor
-  attr_reader :access_token, :reactor_host
+  attr_reader :access_token, :reactor_host, :target_reactor_host
   def initialize(access_token)
     @access_token = access_token
     @reactor_host = ENV['REACTOR_HOST']
+    @target_reactor_host = ENV['TARGET_REACTOR_HOST']
   end
 
   def companies
-    url = "#{reactor_host}/companies"
-    response = get_url(url)
+    # companies\?page%5Bsize%5D\=100\&filter%5Borg_id%5D\=EQ%2060624AE15997076F0A495CEC@AdobeOrg
+    # url = "#{reactor_host}/companies?filter%5Borg_id%5D=EQ%2060624AE15997076F0A495CEC@AdobeOrg"
+    url = "#{reactor_host}/companies?filter[org_id]=EQ 0AB2768154D414A20A4C98A5@AdobeOrg"
+    response = get_url(url, false)
     doc = JSON::Api::Vanilla.parse(response.to_json)
     companies = doc.data
-    pagination = response['meta']['pagination']
-    next_page = pagination['next_page']
-    while !next_page.nil?
-      new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=100"
-      new_response = get_url(new_url)
-      new_doc = JSON::Api::Vanilla.parse(new_response.to_json)
-      companies.concat new_doc.data
-      pagination = new_response['meta']['pagination']
-      next_page = pagination['next_page']
-    end
+    # pagination = response['meta']['pagination']
+    # next_page = pagination['next_page']
+    # while !next_page.nil?
+    #   new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=100"
+    #   new_response = get_url(new_url)
+    #   new_doc = JSON::Api::Vanilla.parse(new_response.to_json)
+    #   companies.concat new_doc.data
+    #   pagination = new_response['meta']['pagination']
+    #   next_page = pagination['next_page']
+    # end
     companies
   end
 
@@ -46,8 +49,9 @@ class Reactor
     get_url(url)
   end
 
-  def extensions(property_id)
-    url = "#{reactor_host}/properties/#{property_id}/extensions"
+  def extensions(property_id, target_host=false)
+    host = target_host ? target_reactor_host : reactor_host
+    url = "#{host}/properties/#{property_id}/extensions"
     get_url(url)
   end
 
@@ -99,7 +103,7 @@ class Reactor
   end
 
   def create_property(company_id, property_name: nil, payload: nil)
-    url = "#{reactor_host}/companies/#{company_id}/properties"
+    url = "#{target_reactor_host}/companies/#{company_id}/properties"
     payload = payload || { "name": property_name, "platform": "web", "domains": ["renchair.com"] }
     post_payload url, scrub_payload(payload, %w(enabled)), 'properties'
   end
@@ -109,7 +113,7 @@ class Reactor
       "name": adapter_name,
       "type_of": "akamai"
     }
-    url = "#{reactor_host}/properties/#{property_id}/adapters"
+    url = "#{target_reactor_host}/properties/#{property_id}/adapters"
     post_payload url, attributes, 'adapters'
   end
 
@@ -129,17 +133,17 @@ class Reactor
         }
       }
     }
-    url = "#{reactor_host}/properties/#{property_id}/environments"
+    url = "#{target_reactor_host}/properties/#{property_id}/environments"
     post_payload url, attributes, 'environments', relationships
   end
 
   def create_extension(property_id, payload, relationship)
-    url = "#{reactor_host}/properties/#{property_id}/extensions"
+    url = "#{target_reactor_host}/properties/#{property_id}/extensions"
     post_payload url, scrub_payload(payload), 'extensions', relationship
   end
 
   def create_aa_extension(property_id, extension_package_id)
-    url = "#{reactor_host}/properties/#{property_id}/extensions"
+    url = "#{target_reactor_host}/properties/#{property_id}/extensions"
     attributes = {
       "settings": "{\"libraryCode\":{\"type\":\"managed\",\"accounts\":{\"production\":[\"dev\"],\"staging\":[\"dev\"],\"development\":[\"dev\"]}},\"trackerProperties\":{\"eVars\":[{\"type\":\"value\",\"name\":\"eVar4\",\"value\":\"%shopping_cart%\"}],\"trackInlineStats\":true,\"trackDownloadLinks\":true,\"trackExternalLinks\":true,\"linkDownloadFileTypes\":[\"doc\",\"docx\",\"eps\",\"jpg\",\"png\",\"svg\",\"xls\",\"ppt\",\"pptx\",\"pdf\",\"xlsx\",\"tab\",\"csv\",\"zip\",\"txt\",\"vsd\",\"vxd\",\"xml\",\"js\",\"css\",\"rar\",\"exe\",\"wma\",\"mov\",\"avi\",\"wmv\",\"mp3\",\"wav\",\"m4v\"]}}",
       "delegate_descriptor_id": "adobe-analytics::extensionConfiguration::config"
@@ -164,7 +168,7 @@ class Reactor
       "name": "My Awesome Analytics Account",
     }
 
-    url = "#{reactor_host}/extensions/#{aa_ext_id}/extension_configurations"
+    url = "#{target_reactor_host}/extensions/#{aa_ext_id}/extension_configurations"
     post_payload url, attributes, 'extension_configurations'
   end
 
@@ -204,7 +208,7 @@ class Reactor
         }
       }
     }
-    url = "#{reactor_host}/properties/#{property_id}/data_elements"
+    url = "#{target_reactor_host}/properties/#{property_id}/data_elements"
     post_payload url, scrub_payload(attrs), 'data_elements', relationship
   end
 
@@ -215,14 +219,24 @@ class Reactor
 
   def rules(property_id)
     url = "#{reactor_host}/properties/#{property_id}/rules"
-    get_url(url)
+    rules = get_url(url)
+    pagination = rules['meta']['pagination']
+    next_page = pagination['next_page']
+    while !next_page.nil?
+      new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=100"
+      new_response = get_url(new_url)
+      rules['data'].concat new_response['data']
+      pagination = new_response['meta']['pagination']
+      next_page = pagination['next_page']
+    end
+    rules
   end
 
   def create_rule(property_id, name)
     attributes = {
       "name": name
     }
-    url = "#{reactor_host}/properties/#{property_id}/rules"
+    url = "#{target_reactor_host}/properties/#{property_id}/rules"
     post_payload url, attributes, 'rules'
   end
 
@@ -264,7 +278,7 @@ class Reactor
         }
       }
     }
-    url = "#{reactor_host}/rules/#{rule_id}/rule_components"
+    url = "#{target_reactor_host}/rules/#{rule_id}/rule_components"
     post_payload url, attributes, 'rule_components', relationship
   end
 
@@ -315,12 +329,19 @@ class Reactor
     end
   end
 
-  def extension_packages
-    return @extension_packages if @extension_packages
-    url = "#{reactor_host}/extension_packages"
+  def extension_packages(target_host=false)
+    return @extension_packages if @extension_packages && !target_host
+    host = target_host ? target_reactor_host : reactor_host
+    url = "#{host}/extension_packages"
     response = get_url(url)
     doc = JSON::Api::Vanilla.parse(response.to_json)
     @extension_packages = doc.data
+  end
+
+  def get_extension_package(id)
+    url = "#{reactor_host}/extension_packages/#{id}"
+    response = get_url(url)
+    JSON::Api::Vanilla.parse(response.to_json)
   end
 
   def get_extension(id)
@@ -351,16 +372,17 @@ class Reactor
   end
 
   def post_url(url, payload)
-    Rails.logger.info("POST '#{url}' with payload: #{payload}")
+    # Rails.logger.info("POST '#{url}' with payload: #{payload}")
     response = ReactorHTTP.post(url, payload, headers)
-    Rails.logger.info("Response: '#{response}'")
+    # Rails.logger.info("Response: '#{response}'")
     response
   end
 
-  def get_url(url)
-    Rails.logger.info("GET '#{url}'")
-    response = BaseHTTP.get(url+"?page%5Bsize%5D\=500", headers)
-    Rails.logger.info("Response: '#{response}'")
+  def get_url(url, include_page=true)
+    filter = include_page ? "?page%5Bsize%5D\=500" : ""
+    # Rails.logger.info("GET '#{url}'")
+    response = BaseHTTP.get(url+filter, headers)
+    # Rails.logger.info("Response: '#{response}'")
     response
   end
 
