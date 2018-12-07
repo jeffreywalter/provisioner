@@ -1,17 +1,18 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
+gem 'rails', '~> 5.2.0'
 gem 'puma', '~> 3.0'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.2'
 gem 'pg'
 gem 'underscore-rails'
+gem 'turbolinks'
 
 gem 'jquery-rails'
-gem 'turbolinks', '~> 5'
 gem 'jbuilder', '~> 2.5'
 
+gem 'autoprefixer-rails'
 gem 'foundation-rails'
 gem 'foundation_rails_helper', '>= 3.0.0.rc2', '< 4.0'
 
@@ -20,6 +21,8 @@ gem 'pygments.rb'
 gem 'json-api-vanilla'
 gem 'ffaker'
 gem 'clearance'
+gem 'sprockets-es6'
+gem 'mini_racer'
 
 gem 'ruby-adobe-io', '0.4.0', source: 'https://obdkxJv4xLM3y78hPJFK@gem.fury.io/jwalter748/'
 
@@ -32,7 +35,7 @@ end
 group :development do
   gem 'pry-rails'
   gem 'web-console'
-  gem 'listen', '~> 3.0.5'
+  gem 'listen'
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
 end

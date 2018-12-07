@@ -17,6 +17,7 @@
       <ul class="header-subnav">
         <li><%= link_to "New Provision", new_provision_path, class: new_provision_class %></li>
         <li><%= link_to "Duplicate Property", new_duplicate_path, class: menu_class(new_duplicate_path) %></li>
+        <li><%= link_to "Extension Package Extract", new_extract_path, class: menu_class(new_extract_path) %></li>
         <li><%= link_to "Previous Run", provision_index_path, class: menu_class(provision_index_path) %></li>
         <li><a target="_blank" href="http://developer.adobedtm.com">Reactor Docs</a></li>
         <% if signed_in? %>
@@ -25,7 +26,6 @@
           <li><%= link_to 'Sign in', sign_in_path %></li>
         <% end %>
       </ul>
-
     </header>
     <%= yield %>
   </body>

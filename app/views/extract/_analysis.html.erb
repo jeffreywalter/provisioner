@@ -1,0 +1,25 @@
+<li class='highlight accordion' data-accordion-item>
+  <a href'#' class='request-title accordion-title'><%= title %></a>
+  <div class='accordion-content' data-tab-content>
+    <% button_classes = analysis.status == 'succeeded' ? 'button' : 'button disabled' %>
+    <br>
+		<%# <p><button class="button" data-open="exampleModal1">Click me for a modal</button></p> %>
+		<div class="reveal" id="exampleModal1" data-reveal>
+			<h1>Awesome. I Have It.</h1>
+			<p class="lead">Your couch. It is mine.</p>
+			<p>I'm a cool paragraph that lives inside of an even cooler modal. Wins!</p>
+			<button class="close-button" data-close aria-label="Close modal" type="button">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+    <% if analysis.status == 'succeeded' %>
+      <div id='code'>
+        Analysis:
+        <%= raw code %>
+      </div>
+    <% else %>
+      <div id='code'>Analysis is currently churning away. Give us a bit and we'll have your data soon!</div>
+    <% end %>
+  </div>
+</li>
+

@@ -17,4 +17,9 @@ Rails.application.routes.draw do
   resources :duplicate, only: [:new]
   get '/duplicate/stream', to: "duplicate#stream"
   get '/duplicate/properties', to: "duplicate#properties"
+
+  resources :extract, only: [:new]
+  get '/extract/analyze', to: "extract#analyze"
+  get '/extract/properties', to: "extract#properties"
+  get '/extract/analyses', to: "extract#analyses"
 end

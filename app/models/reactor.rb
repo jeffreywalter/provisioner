@@ -12,6 +12,7 @@ class Reactor
     companies = doc.data
     pagination = response['meta']['pagination']
     next_page = pagination['next_page']
+    next_page = nil
     while !next_page.nil?
       new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=100"
       new_response = get_url(new_url)
@@ -44,6 +45,21 @@ class Reactor
   def property(property_id)
     url = "#{reactor_host}/properties/#{property_id}"
     get_url(url)
+  end
+
+  def analyses(property_id)
+    page_size = "?page%5bsize%5D=5"
+    url = "#{reactor_host}/properties/#{property_id}/extension_package_extracts"
+    response = get_url(url)
+    JSON::Api::Vanilla.parse(response.to_json)
+  end
+
+  def create_analysis(property_id)
+    attributes = {
+      "confidence": 0.7
+    }
+    url = "#{reactor_host}/properties/#{property_id}/extension_package_extracts"
+    post_payload url, attributes, 'extension_package_extracts'
   end
 
   def extensions(property_id)

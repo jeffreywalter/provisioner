@@ -1,0 +1,44 @@
+<section class="search">
+  <div class="row">
+    <div class="small-8 small-centered  columns">
+      <form class="custom">
+        <div class="grid-x grid-margin-x">
+          <div class="cell small-6">
+            <label>
+              Select company to view analysis
+            </label>
+            <select id='company_select' class='dropdown selector'>
+              <%= options_for_select companies %>
+            </select>
+          </div>
+          <div class="cell auto">
+            <div class="loader"></div>
+          </div>
+        </div>
+        <div class="grid-x grid-margin-x">
+          <div class="cell small-6">
+            <label class='analyze'>
+              Select property to view analyses
+            </label>
+            <select id='source_property_select' class='analyze dropdown selector'>
+              <option value=""></option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-x grix-margin-x">
+          <div class="cell small-3 get_properties">
+            <button id='start_analysis' class='analyze button' src='/analyze'>Run New Analysis</div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class='results'>
+  <div class='row large-12'>
+    <ul class='accordion' data-accordion data-multi-expand='true' id='analyses_events'></ul>
+  </div>
+</section>
+
+<%= javascript_include_tag 'extract.js' %>

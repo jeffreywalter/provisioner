@@ -17,6 +17,12 @@
 
  */
 
+.row {
+  max-width: 75rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
 .header {
   text-align: center;
   background: #074E68;
@@ -112,6 +118,18 @@ div.text-field {
 }
 
 .duplicate {
+  display: none;
+}
+
+.analyze {
+  display: none;
+}
+
+div#start_analysis {
+  display: none;
+}
+
+.extract {
   display: none;
 }
 
