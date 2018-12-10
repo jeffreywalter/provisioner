@@ -1,21 +1,12 @@
 Ext = Struct.new(:id)
-class ExtractController < ApplicationController
-  def new
-    render :new, locals: { companies: companies_for_select}
-  end
-
-  def show
-    analysis = reactor.analysis(params[:id]).data
-    payload = JSON.pretty_generate(analysis.results_json.presence || {})
-    code = Pygments.highlight(payload ,:lexer => 'ruby')
-    render :show, locals: { analysis: analysis, code: code }
+class ProtoController < ApplicationController
+  def index
   end
 
   def analyze
     response.headers['Content-Type'] = 'text/event-stream'
     begin
       analyze_property(params[:property_id])
-      analyses_for_property(params[:property_id])
     rescue IOError
       # Client Disconnected
     ensure
@@ -32,32 +23,6 @@ class ExtractController < ApplicationController
     ensure
       sse.close
     end
-  end
-
-  def proto
-    response.headers['Content-Type'] = 'text/event-stream'
-    begin
-      generate_proto(params[:extract_id], params[:extension_name])
-    rescue IOError
-      # Client Disconnected
-    ensure
-      sse.close
-    end
-  end
-
-  def generate_proto(extract_id, extension_name)
-    proto = reactor.create_proto(extract_id, extension_name)
-    if proto[:doc].nil? && proto[:response]['errors'].first['code'] == "proto-extension-package-exits"
-      proto = reactor.proto_for_extract(extract_id).data
-    else
-      proto = proto[:doc]
-    end
-    proto_id = proto.id
-    while(proto.status == "pending") do
-      sleep(1)
-      proto = reactor.proto(proto_id).data
-    end
-    sse.write(proto.proto_extension_package_url)
   end
 
   def analyses
@@ -90,8 +55,8 @@ class ExtractController < ApplicationController
 
   def analyze_property(property_id)
     analysis = reactor.create_analysis(property_id)[:doc]
-    # url = "#{ENV['REACTOR_HOST']}/extension_package_extracts/#{analysis&.id}"
-    # render_analysis("#{analysis.id} : Executed At: #{analysis.created_at}", analysis, url)
+    url = "#{ENV['REACTOR_HOST']}/extension_package_extracts/#{analysis&.id}"
+    render_analysis("#{analysis.id} : Executed At: #{analysis.created_at}", analysis, url)
   end
 
   def render_analysis(title, analysis, url)

@@ -18,8 +18,13 @@ Rails.application.routes.draw do
   get '/duplicate/stream', to: "duplicate#stream"
   get '/duplicate/properties', to: "duplicate#properties"
 
-  resources :extract, only: [:new]
+  resources :extract, only: [:new] do
+    resources :proto, only: [:index, :create]
+  end
   get '/extract/analyze', to: "extract#analyze"
   get '/extract/properties', to: "extract#properties"
   get '/extract/analyses', to: "extract#analyses"
+  get '/extract/analysis', to: "extract#analysis"
+  get '/extract/proto', to: "extract#proto"
+  get '/extract/:id', to: "extract#show"
 end

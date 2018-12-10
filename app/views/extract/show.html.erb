@@ -1,0 +1,68 @@
+<section class="search">
+  <h2>Extension Package Analysis</h2>
+  <div class='row large-12'>
+    <ul class='accordion' data-accordion data-allow-all-closed="true" id='full'>
+      <li class='highlight accordion' data-accordion-item>
+        <a href'#' class='request-title accordion-title'>View Analysis Summary</a>
+        <div class='accordion-content' data-tab-content>
+          <p>Possible Savings Percentage: <%= analysis.results_json['possible_savings_ratio'].to_f * 100 %>%</p>
+          <p>Current Code Length: <%= analysis.results_json['code_weight'].to_i / 1024 %> kilobytes</p>
+          <p>Possible Code Reduction: <%= analysis.results_json['possible_character_reduction'].to_i / 1024 %> kilobytes</p>
+          <p>Estimated New Code Length: <%= (analysis.results_json['code_weight'].to_i - analysis.results_json['possible_character_reduction'].to_i) / 1024 %> kilobytes</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class='row large-12'>
+    <% %w[events actions conditions data_elements].each do |type| %>
+      <br>
+      <h3><%= type.titleize %></h3>
+      <% analysis.results_json[type].each do |proto_delegate| %>
+        <%# <h3><%= type.capitalize %1></h3> %>
+        <ul class='accordion' data-accordion data-allow-all-closed="true" id='duplicate_events'>
+          <li class='highlight accordion' data-accordion-item>
+            <a href'#' class='request-title accordion-title'><%= proto_delegate['name'] %></a>
+            <div class='accordion-content' data-tab-content>
+              <% if proto_delegate['code'].present? %>
+                <% delegate_code = Pygments.highlight(proto_delegate['code'] ,:lexer => 'ruby') %>
+                <p>Canonical ID: <%= proto_delegate['id'] %></p>
+                <p>Code Weight: <%= proto_delegate['code_weight'] %></p>
+                <p>Possible Character Reduction: <%= proto_delegate['possible_character_reduction'] %></p>
+                <p># of Matches: <%= proto_delegate['match_count'] %></p>
+                <div id='code'>
+                  <%= raw delegate_code %>
+                </div>
+              <% end %>
+            </div>
+          </li>
+        </ul>
+      <% end %>
+    <% end %>
+    <br>
+    <h3>Full Results</h3>
+    <ul class='accordion' data-accordion data-allow-all-closed="true" id='full'>
+      <li class='highlight accordion' data-accordion-item>
+        <a href'#' class='request-title accordion-title'>View Analysis</a>
+        <div class='accordion-content' data-tab-content>
+          <em><%= analysis.id %></em>
+          <div id='code'>
+            <%= raw code %>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="row">
+    <h2>Generate Extension package</h2>
+    <form class="custom">
+      <label>
+        What would you like to name your new extension package?
+      </label>
+      <input id='target_extension_name' type='text'></input>
+      <div id='start_proto' class='button' src='/proto'>Generate Proto Extension</div>
+    </form>
+  </div>
+</section>
+
+<%= javascript_include_tag 'extract.js' %>
+<script>var _extract_id = "<%=analysis.id%>"</script>

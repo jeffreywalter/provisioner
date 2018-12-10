@@ -18,9 +18,17 @@
  */
 
 .row {
-  max-width: 75rem;
+  max-width: 90rem;
   margin-right: auto;
   margin-left: auto;
+}
+
+#analysis_loader {
+  margin-top: 8px;
+}
+
+#start_analysis {
+  min_width: 10rem;
 }
 
 .header {
@@ -93,6 +101,9 @@ div#code {
   margin-top: 10px;
 }
 
+input#target_extension_name {
+  max-width: 20rem
+}
 a.request-title {
   font-weight: bold;
   font-size: 1.1rem;
@@ -127,6 +138,7 @@ div.text-field {
 
 div#start_analysis {
   display: none;
+  max-width: 10rem;
 }
 
 .extract {

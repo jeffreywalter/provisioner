@@ -4,7 +4,7 @@ $('#company_select').click(function() {
 
 $('#company_select').change(function() {
   var company_id = this.value;
-  $('.loader').toggle();
+  $('#company_loader').toggle();
   source = new EventSource("/extract/properties?company_id="+company_id);
   source.onmessage = function(e) {
     var data = JSON.parse(e.data),
@@ -17,7 +17,7 @@ $('#company_select').change(function() {
       property_select[0].add(option)
     });
     $('.analyze').toggle();
-    $('.loader').toggle();
+    $('#company_loader').toggle();
   }
   source.onerror = function(event){
     var txt;
@@ -38,19 +38,20 @@ $('#company_select').change(function() {
 
 $('#source_property_select').on('change', function() {
   var property_id = this.value,
-  current_events = $('#analyses_events');
-  if ($(current_events).children().length > 0) {
-    $(current_events).children().remove();
-  };
+    analyses_table = $('#analyses_table');
+  $('#property_loader').show()
+  $(analyses_table).children().remove();
   if (property_id == undefined || property_id == '' ) {
     // alert("Please select a property.");
     return;
   };
   source = new EventSource("/extract/analyses?property_id="+property_id);
   source.onmessage = function(e) {
-    $('#analyses_events').append($.parseHTML(e.data));
+    var button = $('div#start_analysis');
+    $('div#analyses_table').append($.parseHTML(e.data));
+     $(button).show();
     window.scrollTo(0, document.body.scrollHeight);
-    new Foundation.Accordion($('#analyses_events'), {allowAllClosed: true});
+    $('#property_loader').toggle();
   };
   source.onerror = function(event){
       var txt;
@@ -71,15 +72,45 @@ $('#source_property_select').on('change', function() {
 
 $('#start_analysis').on('click', function() {
   var property_id = $('#source_property_select').val();
+    analyses_table = $('#analyses_table');
   if (property_id == undefined || property_id == '' ) {
     alert("Please select a property.");
     return;
   };
+  $('#analysis_loader').toggle();
   source = new EventSource("/extract/analyze?property_id="+property_id);
   source.onmessage = function(e) {
-    $('#analyses_events').append($.parseHTML(e.data));
-    window.scrollTo(0, document.body.scrollHeight);
-    new Foundation.Accordion($('#analyses_events'), {allowAllClosed: true});
+    $(analyses_table).children().remove();
+    $('#analysis_loader').toggle();
+    $('div#analyses_table').append($.parseHTML(e.data));
+  }
+  source.onerror = function(event){
+      var txt;
+      switch( event.target.readyState ){
+          // if reconnecting
+          case EventSource.CONNECTING:
+              txt = 'Closing...';
+              break;
+          // if error was fatal
+          case EventSource.CLOSED:
+              txt = 'Connection failed. Will not retry.';
+              break;
+      }
+    console.log(txt);
+    source.close();
+  }
+});
+
+$('#start_proto').on('click', function() {
+  var extension_name = $('#target_extension_name').val();
+  if (extension_name == undefined || extension_name == '' ) {
+    alert("Please enter a target extension name.");
+    return;
+  };
+  source = new EventSource("/extract/proto?extract_id="+_extract_id+"&extension_name="+extension_name);
+  source.onmessage = function(e) {
+    console.log(e.data)
+    window.location = e.data
   }
   source.onerror = function(event){
       var txt;

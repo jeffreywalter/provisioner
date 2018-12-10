@@ -12,7 +12,7 @@
             </select>
           </div>
           <div class="cell auto">
-            <div class="loader"></div>
+            <div id='company_loader' class="loader"></div>
           </div>
         </div>
         <div class="grid-x grid-margin-x">
@@ -24,10 +24,8 @@
               <option value=""></option>
             </select>
           </div>
-        </div>
-        <div class="grid-x grix-margin-x">
-          <div class="cell small-3 get_properties">
-            <button id='start_analysis' class='analyze button' src='/analyze'>Run New Analysis</div>
+          <div class="cell auto">
+            <div id='property_loader' class="loader"></div>
           </div>
         </div>
       </form>
@@ -35,10 +33,18 @@
   </div>
 </section>
 
-<section class='results'>
-  <div class='row large-12'>
-    <ul class='accordion' data-accordion data-multi-expand='true' id='analyses_events'></ul>
+<section id="analysis_section">
+  <div class="row">
+    <div class="grid-x grid-margin-x">
+      <div id='analysis_button' class="cell small-1 row">
+        <div id='start_analysis' class='button' >Analyze</div>
+      </div>
+      <div class="cell auto">
+        <div id='analysis_loader' class="loader"></div>
+      </div>
+    </div>
   </div>
+  <div id="analyses_table" class="row"></div>
 </section>
 
 <%= javascript_include_tag 'extract.js' %>

@@ -1,0 +1,31 @@
+<h3>Analyses</h2>
+<table class="hover">
+  <thead>
+    <tr>
+      <th width="300">ID</th>
+      <th>Executed At</th>
+      <th>Events</th>
+      <th>Conditions</th>
+      <th>Actions</th>
+      <th>Data Elements</th>
+      <th>Character Reduction</th>
+      <th>Savings Ratio</th>
+      <th>Code Weight</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% analyses.data.each do |analysis| %>
+      <tr>
+	<td><%= link_to analysis.id, "/extract/#{analysis.id}" %></td>
+	<td><%= Time.parse(analysis.created_at).to_formatted_s(:long) %></td>
+	<td><%= analysis.results_json['events'].length %></td>
+	<td><%= analysis.results_json['conditions'].length %></td>
+	<td><%= analysis.results_json['actions'].length %></td>
+	<td><%= analysis.results_json['data_elements'].length %></td>
+	<td><%= analysis.results_json['possible_character_reduction'] %></td>
+	<td><%= analysis.results_json['possible_savings_ratio'] %></td>
+	<td><%= analysis.results_json['code_weight'] %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

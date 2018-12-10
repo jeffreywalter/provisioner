@@ -48,8 +48,8 @@ class Reactor
   end
 
   def analyses(property_id)
-    page_size = "?page%5bsize%5D=5"
-    url = "#{reactor_host}/properties/#{property_id}/extension_package_extracts"
+    page_size = "?page%5bsize%5D=100"
+    url = "#{reactor_host}/properties/#{property_id}/extension_package_extracts" + page_size
     response = get_url(url)
     JSON::Api::Vanilla.parse(response.to_json)
   end
@@ -60,6 +60,32 @@ class Reactor
     }
     url = "#{reactor_host}/properties/#{property_id}/extension_package_extracts"
     post_payload url, attributes, 'extension_package_extracts'
+  end
+
+  def create_proto(extension_package_extract_id, name)
+    attributes = {
+      "name": name
+    }
+    url = "#{reactor_host}/extension_package_extracts/#{extension_package_extract_id}/proto_extension_package"
+    post_payload url, attributes, 'proto_extension_packages'
+  end
+
+  def proto(proto_id)
+    url = "#{reactor_host}/proto_extension_packages/#{proto_id}"
+    response = get_url(url)
+    JSON::Api::Vanilla.parse(response.to_json)
+  end
+
+  def proto_for_extract(extract_id)
+    url = "#{reactor_host}/extension_package_extracts/#{extract_id}/proto_extension_package"
+    response = get_url(url)
+    JSON::Api::Vanilla.parse(response.to_json)
+  end
+
+  def analysis(analysis_id)
+    url = "#{reactor_host}/extension_package_extracts/#{analysis_id}"
+    response = get_url(url)
+    JSON::Api::Vanilla.parse(response.to_json)
   end
 
   def extensions(property_id)
