@@ -17,4 +17,6 @@ Rails.application.routes.draw do
   resources :duplicate, only: [:new]
   get '/duplicate/stream', to: "duplicate#stream"
   get '/duplicate/properties', to: "duplicate#properties"
+
+  post '/rule_callback', to: 'copy_down#callback'
 end
