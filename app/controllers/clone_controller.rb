@@ -1,57 +1,13 @@
 Ext = Struct.new(:id)
-class CopyDownController < ApplicationController
-  skip_before_action :require_login, only: [:callback]
-  skip_before_action :verify_authenticity_token, only: [:callback]
+class CloneController < ApplicationController
   def new
-    render :new, locals: { companies: companies_for_select}
-  end
-
-  def callback
-    audit_event = JSON.parse(params['_json'])
-    rule_data = audit_event['data']['attributes']['entity']
-    rule_id = JSON.parse(rule_data)['data']['id']
-    puts "Rule ID: #{rule_id}"
-    # get the rule
-    # parse the meta
-    render json: {}, status: 200
-  end
-
-  def new
-    # select company
-    # select property
-    # select rule to be 
-  end
-
-  def create
-    # 
-  end
-
-  def properties
-    response.headers['Content-Type'] = 'text/event-stream'
-    begin
-      sse.write(company_properties(params[:company_id]))
-    rescue IOError
-      # Client Disconnected
-    ensure
-      sse.close
-    end
-  end
-
-  def rules
-    response.headers['Content-Type'] = 'text/event-stream'
-    begin
-      sse.write(propert_rules(params[:property_id]))
-    rescue IOError
-      # Client Disconnected
-    ensure
-      sse.close
-    end
+    render :new, locals: { companies: companies_for_select, default_component: default_component}
   end
 
   def stream
     response.headers['Content-Type'] = 'text/event-stream'
     begin
-      duplicate_property
+      clone_component
     rescue IOError
       # Client Disconnected
     ensure
@@ -68,6 +24,74 @@ class CopyDownController < ApplicationController
     ensure
       sse.close
     end
+  end
+
+  def konami_code
+    <<-HEREDOC
+var Konami = {};
+(function(Konami, window) {
+    'use strict';
+    var sequence = Konami.sequence = function() {
+        var sequence = Array.prototype.slice.call(arguments),
+            state = 0;
+        return function(e) {
+            // patch legacy IE
+            e = (e || window.event);
+            e = (e.keyCode || e.which || e);
+
+            if (e === sequence[state] || e === sequence[(state = 0)]) {
+                var action = sequence[++state];
+                if (typeof action !== 'function') {
+                    return;
+                }
+                action();
+                state = 0;
+            }
+        };
+    };
+    Konami.code = function(action) {
+        return sequence(38, 38, 40, 40, 37, 39, 37, 39, 66, 65, action);
+    };
+})(Konami, window);
+    HEREDOC
+  end
+
+  def default_component
+    # payload = JSON.pretty_generate JSON.parse(reactor.set_variables_settings)
+    payload = konami_code
+    code = Pygments.highlight(payload ,:lexer => 'javascript')
+    { title: "Cloned Custom Code", alpha_url: "https://launch.adobe.com", code: code, url: '' }
+  end
+
+  def clone_component
+    source_property = reactor.property(source_property_id)
+    company_id = source_property.dig(*%w[data relationships company data id])
+    rules_data = reactor.rules(source_property_id)['data']
+    extensions_data = reactor.extensions(source_property_id)['data']
+    core_data = extensions_data.find { |ext| ext['attributes']['name'] == 'core' }
+    ext = Ext.new(core_data['id'])
+    aurl = "#{alpha_host}/companies/#{company_id}/properties/#{source_property_id}/rules"
+    rules_data.each do |rule_data|
+      results = reactor.create_rule_component(rule_data['id'], ext, nil, nil, custom_code_payload(ext))
+      render_text("Created Custom Action for #{rule_data['attributes']['name']}",
+                  results,
+                  "#{aurl}/#{rule_data['id']}")
+    end
+    results = { url: aurl }
+    render_text("Cloning Complete!", results, aurl )
+  end
+
+  def custom_code_payload(ext)
+    {
+      "extension_id": ext.id,
+      "name": "Konami Code",
+      "settings": "{\"language\":\"javascript\",\"source\":#{konami_code.dump}}",
+      "negate": false,
+      "order": 99,
+      "logic_type": 'and',
+      "delegate_descriptor_id": "core::actions::custom-code",
+      "version": false
+    }
   end
 
   def duplicate_property
@@ -131,7 +155,7 @@ class CopyDownController < ApplicationController
         payload = rc_result['attributes']
         extension_id = extensions[rc_result['relationships']['extension']['data']['id']]
         ext = Ext.new(extension_id)
-        rc_response = reactor.create_rule_component(rule.id, ext, nil, nil, nil, payload)
+        rc_response = reactor.create_rule_component(rule.id, ext, nil, nil, payload)
         rc = rc_response[:doc]
         aurl = "#{property_url}/rule_components/#{rc&.id}"
         render_text("Created Rule Component '#{rc&.name}'", rc_response, aurl)

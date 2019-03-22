@@ -1,0 +1,51 @@
+<section class="search">
+  <div class="row">
+    <div class="small-8 small-centered  columns">
+      <form class="custom">
+        <div class="row">
+          <div class="small-6 columns">
+            <label>
+              Select company
+            </label>
+            <select id='company_select' class='dropdown selector'>
+              <%= options_for_select companies %>
+            </select>
+          </div>
+          <div class="small-2 end columns">
+            <p><p>
+            <div class="loader"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="small-8 columns">
+            <label class='duplicate'>
+              Select property
+            </label>
+            <select id='source_property_select' class='duplicate dropdown selector'>
+              <option value=""></option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="small-2 columns get_properties">
+            <div id='start_clone' class='duplicate button' src='/clone'>Attach</div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class='results' style="display: none">
+  <div class='row large-12'>
+    <ul class='accordion' data-accordion data-multi-expand='true' id='clone_events'>
+      <%= render partial: 'shared/event', formats: [:html], locals: default_component %>
+    </ul>
+  </div>
+</section>
+
+<%# <script> %>
+<%#   $('.loader').toggle(); %>
+<%#   $('.duplicate').toggle(); %>
+<%# </script> %>
+<%= javascript_include_tag 'clone.js' %>

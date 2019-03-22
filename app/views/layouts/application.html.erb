@@ -17,6 +17,7 @@
       <ul class="header-subnav">
         <li><%= link_to "New Provision", new_provision_path, class: new_provision_class %></li>
         <li><%= link_to "Duplicate Property", new_duplicate_path, class: menu_class(new_duplicate_path) %></li>
+        <li><%= link_to "Attach Component", new_clone_path, class: menu_class(new_clone_path) %></li>
         <li><%= link_to "Previous Run", provision_index_path, class: menu_class(provision_index_path) %></li>
         <li><a target="_blank" href="http://developer.adobedtm.com">Reactor Docs</a></li>
         <% if signed_in? %>
