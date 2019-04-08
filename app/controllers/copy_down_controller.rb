@@ -2,28 +2,60 @@ Ext = Struct.new(:id)
 class CopyDownController < ApplicationController
   skip_before_action :require_login, only: [:callback]
   skip_before_action :verify_authenticity_token, only: [:callback]
-  def new
-    render :new, locals: { companies: companies_for_select}
-  end
 
   def callback
     audit_event = JSON.parse(params['_json'])
     rule_data = audit_event['data']['attributes']['entity']
     rule_id = JSON.parse(rule_data)['data']['id']
     puts "Rule ID: #{rule_id}"
-    # get the rule
-    # parse the meta
+    cdo = CopyDown.find_by(rule_id: rule_id)
+    trs = cdo.target_rules
+    parent_rcs = reactor.rule_components(rule_id)['data']
+    trs.each do |target_rule|
+      target_rcs = reactor.rule_components(target_rule.rule_id)['data']
+      parent_rcs.each do |parent_rc|
+        found_rc = target_rcs.find{|rc| rc['attributes']['name'] == parent_rc['attributes']['name'] }
+        reactor.update_rule_component(found_rc['id'], parent_rc['attributes']['settings']) if found_rc.present?
+      end
+    end
+    # get the parent rule from db
+    # get the set-variables action from parent rule
+    # parse the meta for target rules
+    # for each target rule
+    #   patch target rule with set-variables action from parent rule
+    # update the CopyDown with processed_at
     render json: {}, status: 200
   end
 
-  def new
-    # select company
-    # select property
-    # select rule to be 
+  def index
+    @copy_downs = CopyDown.all
+  end
+
+  def show
+    # Show parent rule and parent property
+    # Show links to target rules
+  end
+
+  def destroy
+    # we should probably do this
   end
 
   def create
-    # 
+    # parent property_id
+    # parent rule
+    # target properties
+    # For each property in properties
+    #   create rule
+    #   store rule_id in rule_ids list
+    # patch parent-rule with target-rule_ids
+    # save copy-down model in db with parent rule and child rules
+  end
+
+  def new
+    # render the list of properties
+    # Select a parent property
+    # Select a parent rule
+    # Select target properties
   end
 
   def properties

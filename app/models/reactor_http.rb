@@ -11,6 +11,15 @@ class ReactorHTTP
     http_request(uri, req)
   end
 
+  def self.patch(endpoint, body, headers={})
+    uri = URI.parse(endpoint)
+    req = Net::HTTP::Patch.new(uri.request_uri)
+    set_headers(req, headers)
+    req.body = body.to_json
+    puts("Patch: #{uri}\n   Headers: #{headers}\n   Body: #{body}")
+    http_request(uri, req)
+  end
+
   def self.get(endpoint, headers={})
     uri = URI.parse(endpoint)
     req = Net::HTTP::Get.new(uri.request_uri)

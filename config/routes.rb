@@ -24,4 +24,6 @@ Rails.application.routes.draw do
   get '/clone/properties', to: "clone#properties"
 
   post '/rule_callback', to: 'copy_down#callback'
+
+  resources :copy_down, only: [:index, :show, :create, :new]
 end

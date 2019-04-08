@@ -6,14 +6,14 @@ class Reactor
   end
 
   def companies
-    url = "#{reactor_host}/companies"
+    url = "#{reactor_host}/companies?page%5bsize%5D=30"
     response = get_url(url)
     doc = JSON::Api::Vanilla.parse(response.to_json)
     companies = doc.data
     pagination = response['meta']['pagination']
     next_page = pagination['next_page']
-    while !next_page.nil? && pagination['current_page'] < 2
-      new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=100"
+    while !next_page.nil? && pagination['current_page'] < 1
+      new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=10"
       new_response = get_url(new_url)
       new_doc = JSON::Api::Vanilla.parse(new_response.to_json)
       companies.concat new_doc.data
@@ -243,6 +243,14 @@ class Reactor
     get_url(url)
   end
 
+  def update_rule_component(rule_component_id, settings)
+    url = "#{reactor_host}/rule_components/#{rule_component_id}"
+    attributes = {
+      "settings": settings
+    }
+    patch_payload(url, rule_component_id, attributes, 'rule_components')
+  end
+
   def create_rule_component(rule_json, ext=nil, name=nil, type=nil, payload=nil)
     attributes = payload
     property_id = rule_json.dig(*%w(data relationships property data id))
@@ -369,9 +377,29 @@ class Reactor
     { url: url, doc: doc.data, response: response }
   end
 
+  def patch_payload(url, id, attributes, type)
+    payload = {
+      "data": {
+        "id": id,
+        "attributes": attributes,
+        "type": type
+      }
+    }
+    response = patch_url(url, payload)
+    doc = JSON::Api::Vanilla.parse(response.to_json)
+    { url: url, doc: doc.data, response: response }
+  end
+
   def post_url(url, payload)
     Rails.logger.info("POST '#{url}' with payload: #{payload}")
     response = ReactorHTTP.post(url, payload, headers)
+    Rails.logger.info("Response: '#{response}'")
+    response
+  end
+
+  def patch_url(url, payload)
+    Rails.logger.info("PATCH '#{url}' with payload: #{payload}")
+    response = ReactorHTTP.patch(url, payload, headers)
     Rails.logger.info("Response: '#{response}'")
     response
   end

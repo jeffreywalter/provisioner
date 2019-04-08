@@ -72,7 +72,7 @@ class ProvisionController < ApplicationController
 
     # create a rule
     rules = []
-    50.times do
+    10.times do
       name = FFaker::Company.bs.titleize
       rule_results = reactor.create_rule(property.id, name)
       rule = rule_results[:doc]

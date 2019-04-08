@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161213213452) do
+ActiveRecord::Schema.define(version: 20190322222838) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "copy_downs", force: :cascade do |t|
+    t.string   "name"
+    t.string   "company_id"
+    t.string   "property_id"
+    t.string   "rule_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
 
   create_table "events", force: :cascade do |t|
     t.integer  "provision_id"
@@ -29,6 +38,17 @@ ActiveRecord::Schema.define(version: 20161213213452) do
     t.string   "property_name"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+  end
+
+  create_table "target_rules", force: :cascade do |t|
+    t.string   "rule_id"
+    t.string   "company_id"
+    t.string   "property_id"
+    t.string   "name"
+    t.integer  "copy_down_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+    t.index ["copy_down_id"], name: "index_target_rules_on_copy_down_id", using: :btree
   end
 
   create_table "users", force: :cascade do |t|

@@ -1,23 +1,23 @@
 <section class="search">
-  <div class="grid-container">
-    <div class="grid-x grid-margin-x search">
+  <div class="row">
+    <div class="small-8 small-centered  columns">
       <form class="custom">
-        <div class="cell">
+        <div class="row">
           <div class="small-6 columns">
             <label>
-              Select company
+              Select company to duplicate property
             </label>
             <select id='company_select' class='dropdown selector'>
               <%= options_for_select companies %>
             </select>
           </div>
-          <div class="end cell">
+          <div class="small-2 end columns">
             <p><p>
             <div class="loader"></div>
           </div>
         </div>
-        <div class="grid-x grid-margin-x">
-          <div class="cell">
+        <div class="row">
+          <div class="small-8 columns">
             <label class='duplicate'>
               Select property to duplicate
             </label>
@@ -26,16 +26,16 @@
             </select>
           </div>
         </div>
-        <div class="grid-x grid-margin-x">
-          <div class="cell">
+        <div class="row">
+          <div class="small-8 columns">
             <label class='duplicate'>
               What would you like to name your new property?
             </label>
             <input id='target_property_name' type='text' class='duplicate'>
           </div>
         </div>
-        <div class="grid-x grid-margin-x">
-          <div class="cell get_properties">
+        <div class="row">
+          <div class="small-2 columns get_properties">
             <div id='start_duplicate' class='duplicate button' src='/dupllicate'>Duplicate</div>
           </div>
         </div>
@@ -45,12 +45,8 @@
 </section>
 
 <section class='results'>
-  <div class='grid-container'>
-    <div class="grid-x grid-margin-x">
-      <div class='cell'>
-        <ul class='accordion' data-accordion data-multi-expand='true' id='duplicate_events'></ul>
-      </div>
-    </div>
+  <div class='row large-12'>
+    <ul class='accordion' data-accordion data-multi-expand='true' id='duplicate_events'></ul>
   </div>
 </section>
 
