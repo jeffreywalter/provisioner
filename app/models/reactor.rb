@@ -104,16 +104,16 @@ class Reactor
     post_payload url, scrub_payload(payload, %w(enabled)), 'properties'
   end
 
-  def create_adapter(property_id, adapter_name)
+  def create_host(property_id, host_name)
     attributes = {
-      "name": adapter_name,
+      "name": host_name,
       "type_of": "akamai"
     }
-    url = "#{reactor_host}/properties/#{property_id}/adapters"
-    post_payload url, attributes, 'adapters'
+    url = "#{reactor_host}/properties/#{property_id}/hosts"
+    post_payload url, attributes, 'hosts'
   end
 
-  def create_environment(property_id, adapter_id, environment_name)
+  def create_environment(property_id, host_id, environment_name)
     attributes = {
       "name": environment_name,
       "stage": "development",
@@ -122,10 +122,10 @@ class Reactor
     }
 
     relationships = {
-      "adapter": {
+      "host": {
         "data": {
-          "id": adapter_id,
-          "type": "adapters"
+          "id": host_id,
+          "type": "hosts"
         }
       }
     }
@@ -243,8 +243,10 @@ class Reactor
     get_url(url)
   end
 
-  def create_rule_component(rule_id, ext=nil, name=nil, type=nil, payload=nil)
+  def create_rule_component(rule_json, ext=nil, name=nil, type=nil, payload=nil)
     attributes = payload
+    property_id = rule_json.dig(*%w(data relationships property data id))
+    rule_id = rule_json.dig(*%w(data id))
     if attributes.nil?
       attributes = {
         "extension_id": ext.id,
@@ -256,23 +258,28 @@ class Reactor
         "version": false
       }
     end
-    relationship = {
+    relationships = {
       "extension": {
         "data": {
           "id": "#{ext.id}",
           "type": "extensions"
         }
+      },
+      "rules": {
+        "data": [
+          {
+            "id": rule_id,
+            "type": "rules"
+          }
+        ]
       }
     }
-    url = "#{reactor_host}/rules/#{rule_id}/rule_components"
-    post_payload url, attributes, 'rule_components', relationship
+    url = "#{reactor_host}/properties/#{property_id}/rule_components"
+    post_payload url, attributes, 'rule_components', relationships
   end
 
-  def create_library(property_id, name, environment_id, ids)
-    attributes = {
-      "name": name
-    }
-    res_data = ids.map do |res|
+  def library_relationship_data(ids)
+    ids.map do |res|
       {
         "id": res.first,
         "type": res.last,
@@ -282,6 +289,12 @@ class Reactor
       }
     end
 
+  end
+
+  def create_library(property_id, name, environment_id, rule_ids, data_element_ids, extension_ids)
+    attributes = {
+      "name": name
+    }
     relationships = {
       "environment": {
         "data": {
@@ -289,8 +302,14 @@ class Reactor
           "type": "environments"
         }
       },
-      "resources": {
-        "data": res_data
+      "rules": {
+        "data": library_relationship_data(rule_ids)
+      },
+      "data_elements": {
+        "data": library_relationship_data(data_element_ids)
+      },
+      "extensions": {
+        "data": library_relationship_data(extension_ids)
       }
     }
     url = "#{reactor_host}/properties/#{property_id}/libraries"

@@ -30,14 +30,14 @@ class ProvisionController < ApplicationController
     @property = results[:doc]
     render_text("Created property '#{property_name}'", results, "#{property_url}/overview")
 
-    # create a dev adapter
-    results = reactor.create_adapter(property.id, "Cloudy Cloud")
-    adapter = results[:doc]
-    aurl = "#{property_url}/adapters/#{adapter&.id}"
-    render_text("Created Adapter 'Cloudy Cloud'", results, aurl)
+    # create a dev Host
+    results = reactor.create_host(property.id, "Cloudy Cloud")
+    host = results[:doc]
+    aurl = "#{property_url}/hosts/#{host&.id}"
+    render_text("Created Host 'Cloudy Cloud'", results, aurl)
 
     # create a dev environment : save the embed code
-    results = reactor.create_environment(property.id, adapter.id, "My Precious")
+    results = reactor.create_environment(property.id, host.id, "My Precious")
     environment = results[:doc]
     aurl = "#{property_url}/environments/#{environment&.id}"
     render_text("Created Development Environment 'My Precious'", results, aurl)
@@ -74,27 +74,32 @@ class ProvisionController < ApplicationController
     rules = []
     5.times do
       name = FFaker::Company.bs.titleize
-      results = reactor.create_rule(property.id, name)
-      rule = results[:doc]
+      rule_results = reactor.create_rule(property.id, name)
+      rule = rule_results[:doc]
       rules << rule
-      aurl = "#{property_url}/rules/#{results[:doc]&.id}"
-      render_text("Created Rule '#{name}'", results, aurl)
+      aurl = "#{property_url}/rules/#{rule_results[:doc]&.id}"
+      render_text("Created Rule '#{name}'", rule_results, aurl)
 
-      results = reactor.create_rule_component(rule.id, dtm_ext, 'click', :events)
+      results = reactor.create_rule_component(rule_results[:response], dtm_ext, 'click', :events)
       render_text("Created Click Event for Rule '#{name}'", results, aurl)
 
-      results = reactor.create_rule_component(rule.id, dtm_ext, 'browser', :conditions)
+      results = reactor.create_rule_component(rule_results[:response], dtm_ext, 'browser', :conditions)
       render_text("Created Browser Condition for Rule '#{name}'", results, aurl)
 
-      results = reactor.create_rule_component(rule.id, aa_ext, 'set-variables', :actions)
+      results = reactor.create_rule_component(rule_results[:response], aa_ext, 'set-variables', :actions)
       render_text("Created Analytics Set Variables Action for Rule '#{name}'", results, aurl)
     end
 
     # create a library
-    ids = rules.map {|r| [r.id, 'rules']} +
-      data_elements.map {|de| [de.id, 'data_elements']} +
-      [[aa_ext.id, 'extensions'], [dtm_ext.id, 'extensions']]
-    results = reactor.create_library(property.id, "Black Friday", environment.id, ids)
+    rule_ids = rules.map {|r| [r.id, 'rules']}
+    data_element_ids = data_elements.map {|de| [de.id, 'data_elements']}
+    extension_ids = [[aa_ext.id, 'extensions'], [dtm_ext.id, 'extensions']]
+    results = reactor.create_library(property.id, "Black Friday",
+                                     environment.id,
+                                     rule_ids,
+                                     data_element_ids,
+                                     extension_ids
+                                    )
     library = results[:doc]
     aurl = "#{property_url}/publishing/#{library&.id}"
     render_text("Created Library '#{library&.name}'", results, aurl)

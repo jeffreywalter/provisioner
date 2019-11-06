@@ -32,6 +32,7 @@ class DuplicateController < ApplicationController
     source_property = reactor.property(source_property_id)
     payload = source_property['data']['attributes'].tap do |h|
       h['name'] = target_property_name
+      h.delete('token')
     end
     @company_id = source_property['data']['links']['company'][/(?<=companies\/).*/]
 
@@ -87,21 +88,21 @@ class DuplicateController < ApplicationController
         payload = rc_result['attributes']
         extension_id = extensions[rc_result['relationships']['extension']['data']['id']]
         ext = Ext.new(extension_id)
-        rc_response = reactor.create_rule_component(rule.id, ext, nil, nil, payload)
+        rc_response = reactor.create_rule_component(rule_response[:response], ext, nil, nil, payload)
         rc = rc_response[:doc]
         aurl = "#{property_url}/rule_components/#{rc&.id}"
         render_text("Created Rule Component '#{rc&.name}'", rc_response, aurl)
       end
     end
 
-    # create a dev adapter
-    results = reactor.create_adapter(property.id, "Managed by Adobe")
-    adapter = results[:doc]
-    aurl = "#{property_url}/adapters/#{adapter&.id}"
-    render_text("Created Adapter 'Managed by Adobe'", results, aurl)
+    # create a dev host
+    results = reactor.create_host(property.id, "Managed by Adobe")
+    host = results[:doc]
+    aurl = "#{property_url}/hosts/#{host&.id}"
+    render_text("Created Host 'Managed by Adobe'", results, aurl)
 
     # create a dev environment : save the embed code
-    results = reactor.create_environment(property.id, adapter.id, "Development")
+    results = reactor.create_environment(property.id, host.id, "Development")
     environment = results[:doc]
     aurl = "#{property_url}/environments/#{environment&.id}"
     render_text("Created Development Environment 'Development'", results, aurl)
