@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
+gem 'rails', '~> 5.2.0'
 gem 'puma', '~> 3.0'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
-gem 'coffee-rails', '~> 4.2'
+gem 'coffee-rails', '~> 5.0'
 gem 'pg'
 gem 'underscore-rails'
 
@@ -12,6 +12,7 @@ gem 'jquery-rails'
 gem 'turbolinks', '~> 5'
 gem 'jbuilder', '~> 2.5'
 
+# gem 'foundation-rails', '~> 6.2.4.0'
 gem 'foundation-rails'
 gem 'foundation_rails_helper', '>= 3.0.0.rc2', '< 4.0'
 
@@ -38,4 +39,4 @@ group :development do
 end
 
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-ruby "2.3.1"
+ruby "2.6.3"

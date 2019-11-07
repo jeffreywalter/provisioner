@@ -12,6 +12,7 @@ class Reactor
     companies = doc.data
     pagination = response['meta']['pagination']
     next_page = pagination['next_page']
+    next_page = nil
     while !next_page.nil?
       new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=100"
       new_response = get_url(new_url)
