@@ -72,7 +72,7 @@ var Konami = {};
     ext = Ext.new(core_data['id'])
     aurl = "#{alpha_host}/companies/#{company_id}/properties/#{source_property_id}/rules"
     rules_data.each do |rule_data|
-      results = reactor.create_rule_component(rule_data['id'], ext, nil, nil, custom_code_payload(ext))
+      results = reactor.create_rule_component({'data' => rule_data }, ext, nil, nil, custom_code_payload(ext))
       render_text("Created Custom Action for #{rule_data['attributes']['name']}",
                   results,
                   "#{aurl}/#{rule_data['id']}")
@@ -155,7 +155,7 @@ var Konami = {};
         payload = rc_result['attributes']
         extension_id = extensions[rc_result['relationships']['extension']['data']['id']]
         ext = Ext.new(extension_id)
-        rc_response = reactor.create_rule_component(rule.id, ext, nil, nil, payload)
+        rc_response = reactor.create_rule_component(rule_response[:response], ext, nil, nil, payload)
         rc = rc_response[:doc]
         aurl = "#{property_url}/rule_components/#{rc&.id}"
         render_text("Created Rule Component '#{rc&.name}'", rc_response, aurl)

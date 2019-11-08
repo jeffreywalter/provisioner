@@ -10,6 +10,7 @@ module Provisioner
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
+    config.autoload = :classic
     # -- all .rb files in that directory are automatically loaded.
     config.assets.precompile += %w(duplicate.js clone.js copy_down.js)
     config.before_configuration do

@@ -1,9 +1,9 @@
 <section class="search">
-  <div class="row">
-    <div class="small-8 small-centered  columns">
+  <div class="grid-container">
+    <div class="grid-x grid-margin-x search">
       <form class="custom">
-        <div class="row">
-          <div class="small-6 columns">
+        <div class="grid-x grid-margin-x">
+          <div class="small-6 cell">
             <label>
               Select company
             </label>
@@ -11,13 +11,13 @@
               <%= options_for_select companies %>
             </select>
           </div>
-          <div class="small-2 end columns">
+          <div class="small-2 cell">
             <p><p>
             <div class="loader"></div>
           </div>
         </div>
-        <div class="row">
-          <div class="small-8 columns">
+        <div class="grid-x">
+          <div class="small-8 cell">
             <label class='duplicate'>
               Select property
             </label>
@@ -26,8 +26,8 @@
             </select>
           </div>
         </div>
-        <div class="row">
-          <div class="small-2 columns get_properties">
+        <div class="grid-x">
+          <div class="small-4 cell">
             <div id='start_clone' class='duplicate button' src='/clone'>Attach</div>
           </div>
         </div>
@@ -36,11 +36,16 @@
   </div>
 </section>
 
+<%= javascript_include_tag 'clone.js' %>
 <section class='results' style="display: none">
-  <div class='row large-12'>
-    <ul class='accordion' data-accordion data-multi-expand='true' id='clone_events'>
-      <%= render partial: 'shared/event', formats: [:html], locals: default_component %>
-    </ul>
+  <div class='grid-container'>
+    <div class="grid-x grid-margin-x">
+      <div class='cell'>
+        <ul class='accordion' data-accordion data-multi-expand='true' id='clone_events'>
+          <%= render partial: 'shared/event', formats: [:html], locals: default_component %>
+        </ul>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -48,4 +53,3 @@
 <%#   $('.loader').toggle(); %>
 <%#   $('.duplicate').toggle(); %>
 <%# </script> %>
-<%= javascript_include_tag 'clone.js' %>
