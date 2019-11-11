@@ -6,14 +6,14 @@ class Reactor
   end
 
   def companies
-    url = "#{reactor_host}/companies?page%5bsize%5D=30"
-    response = get_url(url)
+    url = "#{reactor_host}/companies"
+    response = get_url(url + "?page%5bsize%5D=100")
     doc = JSON::Api::Vanilla.parse(response.to_json)
     companies = doc.data
     pagination = response['meta']['pagination']
     next_page = pagination['next_page']
     while !next_page.nil?
-      new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=10"
+      new_url = url + "?page%5Bnumber%5D=#{next_page}&page%5bsize%5D=100"
       new_response = get_url(new_url)
       new_doc = JSON::Api::Vanilla.parse(new_response.to_json)
       companies.concat new_doc.data
