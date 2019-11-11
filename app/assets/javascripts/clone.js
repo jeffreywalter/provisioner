@@ -1,3 +1,4 @@
+new Foundation.Accordion($('#clone_events'), {allowAllClosed: true});
 $('#company_select').click(function() {
   $('.duplicate').hide();
 });

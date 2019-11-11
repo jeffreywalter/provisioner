@@ -7,9 +7,12 @@ class Reactor
 
   def companies
     url = "#{reactor_host}/companies"
-    response = get_url(url + "?page%5bsize%5D=100")
+    response = get_url("#{url}?page%5bsize%5D=100")
     doc = JSON::Api::Vanilla.parse(response.to_json)
     companies = doc.data
+    if Rails.env.development?
+      return companies
+    end
     pagination = response['meta']['pagination']
     next_page = pagination['next_page']
     while !next_page.nil?
